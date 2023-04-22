@@ -1,39 +1,37 @@
-Structuring Your Mod
+构建你的mod
 ====================
 
-Let us look at how to organize your mod into different files and what those files should do.
+让我们看看如何在不同的文件中编写你的mod，以及这些文件应该做什么。   
 
-Packaging
+软件包
 ---------
 
-Pick a unique package name. If you own a URL associated with your project, you can use it as your top level package. For example if you own "example.com", you may use `com.example` as your top level package.
+选择一个独特的软件包名称。如果你拥有一个与你的项目相关的URL，你可以使用它作为你的顶级包的名称。例如，如果你拥有 "example.com"，你可以使用`com.example`作为你的顶级包的名称。
 
-!!! important
-    If you do not own a domain, do not use it for your top level package. You can use your email, a subdomain of where you host a website, or your name/username as long as it can be unique.
+**如果你不拥有某个域名，不要用它来做你的顶级包名。你可以使用你的电子邮件，你托管网站的一个子域，或者你的名字/用户名，只要它能够是独一无二的。**   
 
-After the top level package (if you have one), you append a unique name for your mod, such as `examplemod`. In our case it will end up as `com.example.examplemod`.
+在顶级包名之后，为你的mod附加一个独特的名字，比如`examplemod`。在这个例子中，最终会是`com.example.examplemod`。
 
-The `mods.toml` file
+`mods.toml` 文件
 -------------------
 
-!!! important
-    The license field in the mods.toml is required. If it is not provided, an error will occur. See your choices at https://choosealicense.com/
+**mods.toml中的许可证是必需的。如果没有，会发生错误。请在https://choosealicense.com/ 查看您的选择。**
 
-This file defines the metadata of your mod. Its information may be viewed by users from the main screen of the game through the 'Mods' button. A single info file can describe several mods.
+这个文件定义了你的MOD的元数据。玩家可以在游戏的主屏幕上通过 "Mods"按钮查看其信息。一个信息文件可以描述多个MOD。  
 
-The `mods.toml` file is formatted as [TOML][], the example `mods.toml` file in the MDK provides comments explaining the contents of the file. It should be stored as `src/main/resources/META-INF/mods.toml`. A basic `mods.toml`, describing one mod, may look like this:
+`mods.toml`文件的格式为 [TOML][], MDK中的`mods.toml`文件示例包含了该文件内容的解释。它应该被保存在`src/main/resources/META-INF/mods.toml`。一个基本的`mods.toml`，描述了一个mod，可能看起来像这样：
 ```toml
-# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
+# 要加载的mod loader类型 - 对于常规的FML @Mod mods，它应该是javafml。
 modLoader="javafml"
-# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-# Forge for 1.18 is version 38
+# 一个与上述mod加载器相匹配的版本范围--对于常规的FML @Mod来说，它将是forge版本。
+# minecraft 1.18对应的Forge版本是38
 loaderVersion="[38,)"
-# The license for your mod. This is mandatory and allows for easier comprehension of your redistributive properties.
-# Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
+# 你的mod的许可证。这是强制性的，可以使你的再分发策略更容易被理解。
+# 在https://choosealicense.com/查看你的选择。保留所有权利(All Rights Reserved)是默认的许可证，也是这里的默认值。
 license="All Rights Reserved"
-# A URL to refer people to when problems occur with this mod
+# 当这个mod出现问题时，玩家应该访问的网址
 issueTrackerURL="github.com/MinecraftForge/MinecraftForge/issues"
-# If the mods defined in this file should show as separate resource packs
+# 在这个文件中定义的mod是否应该显示为独立的资源包
 showAsResourcePack=false
 
 [[mods]]
@@ -64,57 +62,57 @@ showAsResourcePack=false
     side="BOTH"
 ```
 
-If any string is specified as `${file.jarVersion}`, Forge will replace the string with the **Implementation Version** specified in your jar manifest at runtime. Since the user development environment has no jar manifest to pull from, it will be `NONE` instead. As such, it is usually recommended to leave the `version` field alone. Here is a table of attributes that may be given to a mod, where `mandatory` means there is no default and the absence of the property causes an error.
+如果任何字符串的值被设为`${file.jarVersion}`，Forge将在运行时用你jar manifest中指定的**Implementation Version**字符串替换。由于用户开发环境无法获取jar清单，它将被`NONE`代替。因此，我们通常建议不使用`version`字段。下面是一个可能被赋予mod的属性表，其中`mandatory`意味着是必要字段，没有该属性会导致错误。
 
 |     Property |   Type   | Default  | Description |
 |-------------:|:--------:|:--------:|:------------|
-|        modid |  string  | mandatory | The modid this file is linked to. |
-|      version |  string  | mandatory | The version of the mod. It should be just numbers separated by dots, ideally conforming to Forge's [Semantic Versioning][versioning] structure. |
-|  displayName |  string  | mandatory | The user-friendly name of this mod. |
-| updateJSONURL |  string  |   `""`   | The URL to a [version JSON][updatechecker]. |
-|   displayURL |  string  |   `""`   | A link to the mod's homepage. |
-|     logoFile |  string  |   `""`   | The filename of the mod's logo. It must be placed in the root resource folder, not in a subfolder. |
-|      credits |  string  |   `""`   | A string that contains any acknowledgements you want to mention. |
-|      authors |  string  |   `""`   | The authors of this mod. |
-|  description |  string  | mandatory | A description of this mod. |
-| dependencies | [list] |   `[]`   | A list of dependencies of this mod. |
+|        modid |  string  | mandatory | 这个文件所链接的modid。 |
+|      version |  string  | mandatory | MOD的版本。它应该只是由点分隔的数字，最好符合Forge的[Semantic Versioning][versioning]结构。 |
+|  displayName |  string  | mandatory | 这个MOD对玩家显示的名称。 |
+| updateJSONURL |  string  |   `""`   | mod的[version JSON][updatechecker]地址，用于检查更新。 |
+|   displayURL |  string  |   `""`   | MOD主页的链接。 |
+|     logoFile |  string  |   `""`   | MOD的logo的文件名。它必须放在资源文件夹的根目录而不是子文件夹中。 |
+|      credits |  string  |   `""`   | 一个包含任何你想提及的致谢人的字符串。 |
+|      authors |  string  |   `""`   | 这个mod的作者们。 |
+|  description |  string  | mandatory | 这个mod的描述 |
+| dependencies | [list] |   `[]`   | 这个mod的相关依赖 |
 
-\* All version ranges use the [Maven Version Range Specification][mvr].
+\* 所有的版本范围描述都使用 [Maven Version Range Specification][mvr].
 
-The Mod File
+mod文件
 ------------
 
-Generally, we will start with a file named after your mod and put into your package. This is the *entry point* to your mod and will contain some special indicators marking it as such.
+一般来说，我们将从你的软件包根目录的一个和mod名称相同的java文件开始。这是你的mod的*入口点*，并且将用一些特殊的标识来标记它。
 
-What is `@Mod`?
+什么是 `@Mod`?
 -------------
 
-This is an annotation indicating to the Forge Mod Loader that the class is a Mod entry point. The `@Mod` annotation's value should match a mod id in the `src/main/resources/META-INF/mods.toml` file.
+这个注解向Forge Mod Loader表明该类是一个Mod入口点。`@Mod`注解的值应该与`src/main/resources/META-INF/mods.toml`文件中的mod id匹配。
 
-Keeping Your Code Clean Using Sub-packages
+使用子软件包保持你的代码清洁
 ------------------------------------------
 
-Rather than clutter up a single class and package with everything, it is recommended that you break your mod into subpackages.
+与其把所有的东西都塞进一个类和包里，建议你把你的mod分割成多个子包。
 
-A common subpackage strategy has packages for `common` and `client` code, which is code that can be run on both server/client and only client, respectively. Inside the `common` package would go things like Items, Blocks, and Block Entities (which can each, in turn, be another subpackage). Things like Screens and Renderers would go inside the `client` package.
+一个常见的子包策略分为`common`和`client`代码包，它们的含义是这些代码可以在服务器/客户端运行，或者只在客户端运行。在`common`包内会有Item、Blocks和Block Entities等东西（它们也可以成为另一个子包）。像界面和渲染器这样的东西会被放在`client`包里。
 
-!!! note
-    This package style is only a suggestion, though it is a commonly used style. Feel free to use your own packaging system.
+!!! 注意
+    这种软件包命名风格只是一种建议，尽管它是一种常用的风格。你可以自由使用你自己的软件包命名风格。
 
-By keeping your code in clean subpackages, you can grow your mod much more organically.
+通过将你的代码保持在干净的子包中，你可以更方便地扩展你的mod。
 
-Class Naming Schemes
+类的命名方式
 --------------------
 
-A common class naming scheme allows easier deciphering of what a class is, and it also makes it easier for someone developing with your mod to find things.
+一个通用的类的命名方案可以更容易地解读一个类是什么，它也使和你一起开发mod的人更容易找到东西。
 
-For Example:
+比如：
 
-* An `Item` called `PowerRing` would be in an `item` package, with a class name of `PowerRingItem`.
-* A `Block` called `NotDirt` would be in a `block` package, with a class name of `NotDirtBlock`.
-* Finally, a `BlockEntity` for a block called `SuperChewer` would be a `block.entity` or `blockentity` package, with a class name of `SuperChewerBlockEntity`.
+* 一个叫做`PowerRing`的`Item`放在一个`item`包中、类的名称为`PowerRingItem`。
+* 一个叫做`NotDirt`的`Block`放在一个`block`包中、类的名称为`NotDirtBlock`。
+* 最后、对于`SuperChewer`方块的一个`BlockEntity`来说，放在一个`block.entity`或`blockentity`包中，类的名称是`SuperChewerBlockEntity`。
 
-Appending your class names with what *kind* of object they are makes it easier to figure out what a class is or guess the class for an object.
+在你的类名后面加上它们的*种类*后缀，使你更容易弄清一个类是什么或猜测一个物品的类名。
 
 [TOML]: https://github.com/toml-lang/toml
 [versioning]: ./versioning.md
