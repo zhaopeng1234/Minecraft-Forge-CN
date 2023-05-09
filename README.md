@@ -13,3 +13,10 @@
   * #### [从零开始](/docs/gettingstarted/index.md) 
   * #### [mod的文件结构](/docs/gettingstarted/structuring.md) 
   * #### [版本控制](/docs/gettingstarted/versioning.md) 
+* ### 核心概念
+  * #### [注册表](/docs/concepts/registries.md)
+  * #### [端](/docs/concepts/sides.md)
+  * #### [事件](/docs/concepts/events.md)
+  * #### [模组生命周期](/docs/concepts/lifecycle.md)
+  * #### [资源](/docs/concepts/resources.md)
+  * #### [国际化](/docs/concepts/internationalization.md)
