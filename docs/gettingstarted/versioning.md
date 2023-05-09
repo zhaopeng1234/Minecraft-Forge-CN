@@ -1,52 +1,53 @@
-Versioning
+版本控制
 ==========
 
-In general projects, [Semantic Versioning][semver] is often used (which has the format `MAJOR.MINOR.PATCH`). However, in the case of modding it may be more beneficial to use the format `MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH` to be able to differentiate between world-breaking and API-breaking changes of a mod.
+在一般的项目中，通常使用[语义化版本控制][semver]（其格式为`主版本号.次版本号.修订号`）。然而，在制作mod时，使用`MC版本号-mod主版本号.api主版本号.次版本号.修订号`的格式可能更合适，以便于区分破坏性的mod世界变化和api变化。
 
-Examples
+例子
 --------
 
-Here is a list of examples that can increment the various variables.
+下面是一些可以增加各个版本号变量的例子。
 
-* `MCVERSION`
-  * Always matches the Minecraft version the mod is for.
-* `MAJORMOD`
-  * Removing items, blocks, block entities, etc.
-  * Changing or removing previously existing mechanics.
-  * Updating to a new Minecraft version.
-* `MAJORAPI`
-  * Changing the order or variables of enums.
-  * Changing return types of methods.
-  * Removing public methods altogether.
-* `MINOR`
-  * Adding items, blocks, block entities, etc.
-  * Adding new mechanics.
-  * Deprecating public methods. (This is not a `MAJORAPI` increment since it doesn't break an API.)
-* `PATCH`
-  * Bugfixes.
+* `MC版本号`
+  * 始终与MOD所对应的Minecraft版本相匹配。
+* `mod主版本号`
+  * 移除物品、方块、方块实体等。
+  * 改变或删除以前存在的机制。
+  * 更新到一个新的Minecraft版本。
+* `api主版本号`
+  * 改变枚举的顺序或变量。
+  * 改变方法的返回类型。
+  * 完全删除公共方法。
+* `次版本号`
+  * 添加物品、方块、方块实体等。
+  * 增加新的机制。
+  * 将公共方法标记为过时（`@Deprecated`），这不是一个`api主版本号`变更，因为它不会导致API不可用。
+* `修订号`
+  * Bug修复。
 
-When incrementing any variable, all lesser variables should reset to `0`. For instance, if `MINOR` would increment, `PATCH` would become `0`. If `MAJORMOD` would increment, all other variables would become `0`.
+当增大任何版本变量时，所有更靠后的版本变量应重置为`0`。例如，如果要增加`次版本号`，`修订号`应变成`0`。如果要增加`mod主版本号`，所有其他变量应变成`0`。
 
-### Work In Progress
+### 正在进行的工作
 
-If you are in the initial development stage of your mod (before any official releases), the `MAJORMOD` and `MAJORAPI` should always be `0`. Only `MINOR` and `PATCH` should be updated every time you build your mod. Once you build an official release (most of the time with a stable API), you should increment `MAJORMOD` to version `1.0.0.0`. For any further development stages, refer to the [Prereleases][pre] and [Release candidates][rc] section of this document.
+如果你的mod处于初始发布前的版本（在任何正式发布之前），`mod主版本号`和`api主版本号`应该始终是`0`。只有`次版本号`和`修订号`在你每次构建你的mod时应该被更新。一旦你构建了一个正式的版本（大多数时候有稳定的API），你应该增加`mod主版本号`，到`1.0.0.0`版本。对于其他进一步的开发阶段，请参考本文档的[Pereleases][pre]和[Release candidates][rc]部分。
 
-### Multiple Minecraft Versions
+### 多个Minecraft版本
 
-If the mod upgrades to a new version of Minecraft, and the old version will only receive bug fixes, the `PATCH` variable should be updated based on the version before the upgrade. If the mod is still in active development in both the old and the new version of Minecraft, it is advised to append the version to **both** build numbers. For example, if the mod is upgraded to version `3.0.0.0` due to a Minecraft version change, the old mod should also be updated to `3.0.0.0`. The old version will become, for example, version `1.7.10-3.0.0.0`, while the new version will become `1.8-3.0.0.0`. If there are no changes at all when building for a newer Minecraft version, all variables except for the Minecraft version should stay the same.
+如果要将MOD升级到Minecraft的新版本，而旧版本只接受bug修复，旧版本的`修订号`变量应基于升级前的版本进行更新。例如，如果MOD由于Minecraft版本的改变而升级到`3.0.0.0`版本，旧版本将保持在`2.x.x.x`版本。旧版本将是`1.7.10-2.x.x.x`，而新版本将是`1.8-3.0.0.0`。    
+如果MOD在Minecraft的新旧版本中都还在积极开发，建议将二者的版本号**都** 升级到新的。例如，如果MOD由于Minecraft版本的改变而升级到`3.0.0.0`版本，旧版本也应该更新到`3.0.0.0`。例如，旧版本将变成`1.7.10-3.0.0`版本，而新版本将变成`1.8-3.0.0`。如果为较新的Minecraft版本构建时完全没有变化，除了Minecraft版本外，所有变量都应该保持不变。
 
-### Final Release
+### 最终发布
 
-When dropping support for a Minecraft version, the last build for that version should get the `-final` suffix. This denotes that the mod will no longer be supported for the denoted `MCVERSION` and that players should upgrade to a newer version of the mod to continue receiving updates and bug fixes.
+当放弃对一个Minecraft版本的支持时，该版本的最后一次构建应获得`-final`后缀。这表示该mod将不再支持所指定的`MC版本号`，玩家应该升级到该mod的较新版本以继续接收更新和错误修复。
 
-### Pre-releases
+### 预发布
 
-It is also possible to prerelease work-in-progress features, which means new features are released that are not quite done yet. These can be seen as a sort of "beta". These versions should be appended with `-betaX`, where `X` is the number of the prerelease. (This guide does not use `-pre` since, at the time of writing, it is not a valid alias for `-beta`.) Note that already released versions and versions before the initial release can not go into prerelease; variables (mostly `MINOR`, but `MAJORAPI` and `MAJORMOD` can also prerelease) should be updated accordingly before adding the `-beta` suffix. Versions before the initial release are simply work-in-progress builds.
+您也可以预先发布正在开发中的功能，这意味着这些新功能还没有完全完成。这些版本可以被看作是一种 "测试版"，应在版本号后附加`-betaX`，其中`X`是预发布的编号(本指南不使用`-pre`，因为在写作时，它不是`-beta`的有效别名)。请注意，已经发布的版本和初始发布前的版本不能进行预发布：**版本变量应该在添加`-beta`后缀前进行更新**（主要是`次版本号`，但`mod主版本号`和`api主版本号`也可以预发布）。初始发布前的版本只是单纯的开发中的构建。
 
-### Release Candidates
+### 候选版本
 
-Release candidates act as prereleases before an actual version change. These versions should be appended with `-rcX`, where `X` is the number of the release candidate which should, in theory, only be increased for bugfixes. Already released versions can not receive release candidates; variables (mostly `MINOR`, but `MAJORAPI` and `MAJORMOD` can also prerelease)  should be updated accordingly before adding the `-rc` suffix. When releasing a release candidate as stable build, it can either be exactly the same as the last release candidate or have a few more bug fixes.
+候选版本是一个有可能成为正式版本的预发布版本，除非出现重大错误，否则随时可以发布。这些版本应附加`-rcX`后缀，其中`X`是候选版本的编号，理论上只有在修复错误时才会增加。已经发布的版本不能作为候选版本发布：**版本变量应该在添加`-rc`后缀前进行更新**（主要是`次版本号`，但`mod主版本号`和`api主版本号`也可以预发布）。当把候选版本变成稳定版本发布时，它可以和候选版本的内容完全一样，也可以多一些错误修复。
 
-[semver]: https://semver.org/
+[semver]: https://semver.org/lang/zh-CN/
 [pre]: #pre-releases
 [rc]: #release-candidates
