@@ -1,16 +1,17 @@
-Registries
+注册表
 ==========
 
-Registration is the process of taking the objects of a mod (such as items, blocks, sounds, etc.) and making them known to the game. Registering things is important, as without registration the game will simply not know about these objects, which will cause unexplainable behaviors and crashes. 
+注册是记录MOD中的对象（如物品、方块、声音等）并让它们被游戏感知的过程，它非常重要。如果不注册，游戏将无法获知这些对象，这将导致无法解释的行为和崩溃。    
 
-Most things that require registration in the game are handled by the Forge registries. A registry is an object similar to a map that assigns values to keys. Forge uses registries with [`ResourceLocation`][ResourceLocation] keys to register objects. This allows the `ResourceLocation` to act as the "registry name" for objects. The registry name for an object may be accessed with `#getRegistryName`/`#setRegistryName`. The setter can only be called once; calling it twice results in an exception. 
+游戏中大多数需要注册的东西都由Forge注册表处理。注册表是一个类似于Map的对象，key和值一一对应。Forge使用带有[`资源路径(ResourceLocation)`][ResourceLocation]的key来注册对象。这将允许`资源路径(ResourceLocation)`作为对象的`注册名称`。对象的`注册名称`可以通过`#getRegistryName`/`#setRegistryName`方法访问。其中set方法只能被调用一次，调用两次会导致抛出异常。    
 
-Every type of registrable object has its own registry. To see all registries supported by Forge, see the `ForgeRegistries` class. All registry names within a registry must be unique. However, names in different registries will not collide. For example, there's a `Block` registry, and an `Item` registry. A `Block` and an `Item` may be registered with the same name `example:thing` without colliding; however, if two different `Block`s or `Item`s were registered with the same exact name, the second object will override the first.
+每种类型的可注册对象都有它自己的注册表。要查看Forge支持的所有注册表，请查看`ForgeRegistries`类。单个注册表内的所有`注册名称`必须是唯一的。然而，不同注册表中的名称不会发生冲突。例如，有`方块`注册表和`物品`注册表。一个`方块`和一个`物品`可以用同一个名字注册而不发生冲突；但是，如果两个不同的`方块`或`物品`以完全相同的名称注册，第二个对象将覆盖第一个。    
 
-Methods for Registering
+
+注册对象的方式
 ------------------
 
-There are two proper ways to register objects: the `DeferredRegister` class, and the `RegistryEvent$Register` lifecycle event.
+有两种正确地注册对象的方式：`延迟注册(DeferredRegister)`类，以及`注册表事件(RegistryEvent)`中的`注册(Register)`事件。
 
 ### DeferredRegister
 
