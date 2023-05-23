@@ -1,11 +1,11 @@
 注册表
 ==========
 
-注册是记录MOD中的对象（如物品、方块、声音等）并让它们被游戏感知的过程，它非常重要。如果不注册，游戏将无法获知这些对象，这将导致无法解释的行为和崩溃。    
+注册是记录MOD中的对象（如物品、方块、声音等）并让它们被游戏感知的过程。如果不注册，游戏将无法获知这些对象，这将导致无法解释的行为和崩溃。    
 
-游戏中大多数需要注册的东西都由Forge注册表处理。注册表是一个类似于Map的对象，key和值一一对应。Forge使用带有[`资源路径(ResourceLocation)`][ResourceLocation]的key来注册对象。这将允许`资源路径(ResourceLocation)`作为对象的`注册名称`。对象的`注册名称`可以通过`#getRegistryName`/`#setRegistryName`方法访问。其中set方法只能被调用一次，调用两次会导致抛出异常。    
+游戏中大多数需要注册的对象都由Forge注册表处理。注册表是一个类似于Map的数据结构，key和值一一对应。Forge使用带有[`资源路径(ResourceLocation)`][ResourceLocation]的key来注册对象。这将允许使用`资源路径(ResourceLocation)`作为对象的`注册名称`。对象的`注册名称`可以通过`#getRegistryName`/`#setRegistryName`方法访问。其中set方法**只能被调用一次**，调用两次会导致抛出异常。    
 
-每种类型的可注册对象都有它自己的注册表。要查看Forge支持的所有注册表，请查看`ForgeRegistries`类。单个注册表内的所有`注册名称`必须是唯一的。然而，不同注册表中的名称不会发生冲突。例如，有`方块`注册表和`物品`注册表。一个`方块`和一个`物品`可以用同一个名字注册而不发生冲突；但是，如果两个不同的`方块`或`物品`以完全相同的名称注册，第二个对象将覆盖第一个。    
+每种类型的可注册对象都有它自己的注册表。要查看Forge支持的所有注册表，请查看`ForgeRegistries`类。单个注册表内的所有`注册名称`必须是唯一的。然而，不同注册表中的名称不会发生冲突。例如，在`方块`注册表和`物品`注册表中。一个`方块`和一个`物品`可以分别用同一个名字在各自的注册表中注册而不发生冲突；但是，如果两个不同的`方块`或`物品`以完全相同的名称注册，第二个对象将覆盖第一个。    
 
 
 注册对象的方式
@@ -13,11 +13,11 @@
 
 有两种正确地注册对象的方式：`延迟注册(DeferredRegister)`类，以及`注册表事件(RegistryEvent)`中的`注册(Register)`事件。
 
-### DeferredRegister
+### 延迟注册(DeferredRegister)
 
-`DeferredRegister` is the newer and documented way to register objects. It allows the use and convenience of static initializers while avoiding the issues associated with it. It simply maintains a list of suppliers for entries and registers the objects from those suppliers during the proper `RegistryEvent$Register` event.
+`延迟注册`是较新的、有文档的注册对象的方式。它允许使用易用的静态初始化器，同时避免了与此相关的问题。它只是简单地维护了一个对象提供者的列表，并在适当的`注册表事件(RegistryEvent)`中的`注册(Register)`事件过程中注册从这些提供者中获取的对象。    
 
-An example of a mod registering a custom block:
+一个MOD注册自定义方块的例子：
 
 ```java
 private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
@@ -29,13 +29,13 @@ public ExampleMod() {
 }
 ```
 
-### `Register` events
+### 注册(Register) 事件
 
-The `RegistryEvent`s are the second and more flexible way to register objects. These [events][] are fired after the mod constructors and before the loading of configs.
+`注册表事件(RegistryEvent)`是一种更灵活的注册对象的方式。这些[事件][events]在mod构造器之后、加载配置之前被触发。    
 
-The event used to register objects is `RegistryEvent$Register<T>`. The type parameter `T` should be set to the type of the object being registered. Calling `#getRegistry` will return the registry, upon which objects are registered with `#register` or `#registerAll`. 
+用于注册对象的事件是`RegistryEvent$Register<T>`。类型参数`T`应该被设置为要注册的对象的**注册表类型**。调用`#getRegistry`将返回对应的注册表，然后通过调用`register`或`registerAll`方法注册对象。    
 
-Here is an example: (the event handler is registered on the *mod event bus*)
+以下是一个示例: (该事件处理器已经在 *mod事件总线(event bus)* 上注册了)    
 
 ```java
 @SubscribeEvent
@@ -44,9 +44,9 @@ public void registerBlocks(RegistryEvent.Register<Block> event) {
 }
 ```
 
-### Registries that aren't Forge Registries
+### 非Forge的注册表
 
-Due to some peculiarities of vanilla code, not all registries are wrapped by Forge. These can be static registries, like `RecipeType`, which are safe to use. There are also dynamic registries, like `ConfiguredFeature` and some other worldgen registries, which are typically represented in JSON. These objects should only be registered this way if there is another registry object that requires it. `DeferredRegister#create` has an overload which allows modders to specify the registry key of which vanilla registry to create a `RegistryObject` for. The registry method and attaching to the mod event bus is the same as other `DeferredRegister`s.
+由于mincraft原版代码的一些特殊性，并不是所有的注册表都被Forge包装了。有些是静态注册表，例如`RecipeType`，这些可以安全使用。还有一些动态注册表，像`ConfiguredFeature`和一些世界生成的注册表，它们通常用JSON表示。这些对象只有在有其他注册表对象需要的情况下才应该被这样注册。`DeferredRegister`类的`create`方法有一个重载，允许mod开发者指定原版注册表创建`注册表对象(RegistryObject)`时所使用的的注册表键。调用注册表方法和附加到mod事件总线的方式与使用`延迟注册`的方式相同。     
 
 ```java
 private static final DeferredRegister<RecipeType<?>> REGISTER = DeferredRegister.create(Registry.RECIPE_TYPE_REGISTRY, "examplemod");
