@@ -1,47 +1,39 @@
-Getting Started with Forge
+开始使用Forge
 ==========================
+如果您以前从未开发过Forge mod，本页告诉您如何开始设置一个最基础的Forge开发环境。（译者注：其实我更推荐你用idea的[一个插件](https://mcdev.io/)，能使开发过程更加简单。以下仍然使用原始教程）
 
-If you have never made a Forge mod before, this section will provide the minimum amount of information needed to setup a Forge development environment. The rest of the documentation is about where to go from here.
 
-Prerequisites
+预先准备
 -------------
 
-* An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). Forge recommends and officially supports [Eclipse Temurin][jdk].
+* 安装JDK**17**的**64**位版本。Forge官方推荐并支持[Eclipse Temurin][jdk]。请确保您使用的是64位JVM。检查方法是在命令行中执行`java -version`命令。使用32位JVM会在使用[ForgeGradle]时遇到一些问题
+* 熟悉一种集成开发环境（IDE）
+  * 建议使用集成了Gradle的IDE。
 
-    !!! warning
-        Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Using a 32-bit JVM will cause some problems when using [ForgeGradle].
-
-* Familiarity with an Integrated Development Environment (IDE).
-    * It is recommended to use an IDE with Gradle integration.
-
-From Zero to Modding
+从零开始开发模组
 --------------------
 
-1. Download the Mod Developer Kit (MDK) from the [Forge file site][files] by clicking 'Mdk' followed by the 'Skip' button in the top right after waiting for a period of time. It is recommended to download the latest version of Forge whenever possible.
-1. Extract the downloaded MDK into an empty directory. This will be your mod's directory, which should now contain some gradle files and a `src` subdirectory containing the example mod.
+1. 从[Forge][files]网站上下载模组开发包（MDK）。在左侧选择对应的Minecraft版本，然后点击页面上的'Mdk'按钮。在接下来的页面上等待几秒钟，然后点击右上角的'Skip'按钮。建议尽可能下载最新版本的 Forge。  
+1. 将下载的MDK解压到一个空目录里，这将是你的mod目录，包含一些Gradle文件和一个包含示例mod的`/src`子目录。一些文件可以在不同mod之间重复使用，包括：  
+* `/gradle` 子目录  
+* `build.gradle`  
+* `gradlew`  
+* `gradlew.bat`  
+* `settings.gradle`
+`/src` 子目录不需要在不同的工作空间之间复制;然而，在稍后创建java (`src/main/java`)和resource (`src/main/resources`)目录后，你也许需要刷新Gradle项目。
 
-    !!! note
-        A number of files can be reused across different mods. These files are:
+1. 打开你选择的IDE:  
+    * Forge仅明确支持在Eclipse和IntelliJ IDEA上的开发, 但是仍然有可供Visual Studio Code使用的额外运行配置。如果你愿意的话，也可以使用Apache NetBeans或者Vim / Emacs等开发环境。  
+    * Eclipse和IntelliJ IDEA都默认集成有Gradle，会在你导入或打开项目后处理剩余的工作空间配置工作。包括从Mojang，MinecraftForge，以及其他地方下载必要的包。而Visual Studio Code需要下载'Gradle for Java'插件。  
+    * 在几乎所有相关文件改动后（例如`build.gradle`，`settings.gradle`，等等），需要调用Gradle用于重新评估项目。某些IDE会有'刷新' 按钮; 或者，也可以在命令行中使用`gradlew`命令。
 
-        * the `gradle` subdirectory
-        * `build.gradle`
-        * `gradlew`
-        * `gradlew.bat`
-        * `settings.gradle`
+1. 运行对应的Gradle任务，为你选择的IDE生成运行配置:
+    * **Eclipse**: 运行`genEclipseRuns`任务。
+    * **IntelliJ IDEA**: 运行`genIntellijRuns`任务。如果出现"module not specified"的报错, 设置[`ideaModule`属性][config]的值为你的'main'模块(一般是`${project.name}.main`)。
+    * **Visual Studio Code**: 运行`genVSCodeRuns`任务。
+    * **其他IDE**: 你可以直接运行`gradle run*`任务，例如`runClient`, `runServer`, `runData`, `runGameTestServer`等。  
 
-        The `src` subdirectory does not need to be copied across workspaces; however, you may need to refresh the Gradle project if the java (`src/main/java`) and resource (`src/main/resources`) are created later.
-
-1. Open your selected IDE:
-    * Forge only explicitly supports development on Eclipse and IntelliJ IDEA, but there are additional run configurations for Visual Studio Code. Regardless, any environment, from Apache NetBeans to Vim / Emacs, can be used.
-    * Eclipse and IntelliJ IDEA's Gradle integration, both installed and enabled by default, will handle the rest of the initial workspace setup on import or open. This includes downloading the necessary packages from Mojang, MinecraftForge, etc. The 'Gradle for Java' plugin is needed for Visual Studio Code to do the same.
-    * Gradle will need to be invoked to re-evaluate the project for almost all changes to its associated files (e.g., `build.gradle`, `settings.gradle`, etc.). Some IDEs come with 'Refresh' buttons to do this; however, it can be done through the terminal via `gradlew`.
-1. Generate run configurations for your selected IDE:
-    * **Eclipse**: Run the `genEclipseRuns` task.
-    * **IntelliJ IDEA**: Run the `genIntellijRuns` task. If a "module not specified" error occurs, set the [`ideaModule` property][config] to your 'main' module (typically `${project.name}.main`).
-    * **Visual Studio Code**: Run the `genVSCodeRuns` task.
-    * **Other IDEs**: You can run the configurations directly using `gradle run*` (e.g., `runClient`, `runServer`, `runData`, `runGameTestServer`). These can also be used with the supported IDEs.
-
-Customizing Your Mod Information
+自定义你的mod信息
 --------------------------------
 
 Edit the `build.gradle` file to customize how your mod is built (e.g., file name, artifact version, etc.).
