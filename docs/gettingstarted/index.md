@@ -21,7 +21,7 @@
 3. 打开你选择的IDE:  
     * Forge仅明确支持在Eclipse和IntelliJ IDEA上的开发，但是仍然有可供Visual Studio Code使用的额外运行配置。如果你愿意的话，也可以使用Apache NetBeans或者Vim / Emacs等开发环境。  
     * Eclipse和IntelliJ IDEA都默认集成有Gradle，会在你导入或打开项目后处理剩余的工作空间配置工作（译者注：初次加载时报错是可能的，刷新重试即可）。包括从Mojang，MinecraftForge，以及其他地方下载必要的包。而Visual Studio Code需要下载'Gradle for Java'插件。  
-    * 在几乎所有相关文件改动后（例如`build.gradle`，`settings.gradle`，等等），需要调用Gradle用于重新评估项目。某些IDE会有'刷新' 按钮；或者，也可以在命令行中使用`gradlew`命令。
+    * 在相关文件，例如`build.gradle`，`settings.gradle`等改动后，需要调用Gradle用于重新构建项目。某些IDE会有'刷新' 按钮；或者，也可以在命令行中使用`gradlew`命令。
     * （译者注：由于国内网络环境问题，建议[添加阿里云镜像](/docs/cn/aliyun.md)作为下载源）
 4. 运行对应的Gradle任务，为你选择的IDE生成运行配置：
     * **Eclipse**: 运行`genEclipseRuns`任务。  
@@ -87,7 +87,7 @@ version = '1.20-1.0.0.0'
 -----------------------------
 1. 要构建你的mod，运行`gradlew build`。这会在`build/libs`目录中输出一个以`[archivesBaseName]-[version].jar`命名的文件。这个文件可以放在支持Forge的Minecraft客户端的mods文件夹中加载或分发。  
 2. 要在测试环境中运行你的mod，你可以使用初始化项目时自动生成的运行配置。或者运行对应的任务例如`gradlew runClient`。这将从运行目录（默认`run`）启动Minecraft和你的mod代码。mod源代码的位置可以被指定，默认情况下，MDK会使用src/main/java文件夹下的源代码。  
-3. 如果你要运行一个专用服务器，可以使用运行配置或使用`gradlew runServer`命令。在第一次运行时，服务器将立即关闭，你需要接受Minecraft EULA条款并编辑运行目录下的`eula.txt`。接受EULA之后，服务器将被加载，并可以通过localhost直连访问。  
+3. 如果你要运行一个专用服务器，可以使用运行配置或使用`gradlew runServer`命令。在第一次运行时，服务器将立即关闭，你需要接受Minecraft EULA条款并编辑运行目录下的`eula.txt`。接受EULA之后，服务器将被加载，并可以通过本地直连访问。  
 
 !!! 注意
     你应该始终在专用服务器环境中测试你的mod。包括[仅在客户端生效的mod][client]，因为它们在服务器上加载时不应该做任何事情。  
