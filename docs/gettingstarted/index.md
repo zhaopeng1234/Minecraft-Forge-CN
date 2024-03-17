@@ -20,8 +20,9 @@
 `src` 子目录不需要在不同的工作空间之间复制。然而，在稍后创建java (`src/main/java`)和resource (`src/main/resources`)目录后，你需要刷新Gradle项目。  
 3. 打开你选择的IDE:  
     * Forge仅明确支持在Eclipse和IntelliJ IDEA上的开发，但是仍然有可供Visual Studio Code使用的额外运行配置。如果你愿意的话，也可以使用Apache NetBeans或者Vim / Emacs等开发环境。  
-    * Eclipse和IntelliJ IDEA都默认集成有Gradle，会在你导入或打开项目后处理剩余的工作空间配置工作。包括从Mojang，MinecraftForge，以及其他地方下载必要的包。而Visual Studio Code需要下载'Gradle for Java'插件。  
-    * 在几乎所有相关文件改动后（例如`build.gradle`，`settings.gradle`，等等），需要调用Gradle用于重新评估项目。某些IDE会有'刷新' 按钮；或者，也可以在命令行中使用`gradlew`命令。  
+    * Eclipse和IntelliJ IDEA都默认集成有Gradle，会在你导入或打开项目后处理剩余的工作空间配置工作（译者注：初次加载时报错是可能的，刷新重试即可）。包括从Mojang，MinecraftForge，以及其他地方下载必要的包。而Visual Studio Code需要下载'Gradle for Java'插件。  
+    * 在几乎所有相关文件改动后（例如`build.gradle`，`settings.gradle`，等等），需要调用Gradle用于重新评估项目。某些IDE会有'刷新' 按钮；或者，也可以在命令行中使用`gradlew`命令。
+    * （译者注：由于国内网络环境问题，建议[添加阿里云镜像](/docs/cn/aliyun.md)作为下载源）
 4. 运行对应的Gradle任务，为你选择的IDE生成运行配置：
     * **Eclipse**: 运行`genEclipseRuns`任务。  
     * **IntelliJ IDEA**: 运行`genIntellijRuns`任务。如果出现"module not specified"的报错, 设置[`ideaModule`][config]属性的值为你的'main'模块(一般是`${project.name}.main`)。  
