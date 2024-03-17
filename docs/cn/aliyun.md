@@ -1,6 +1,6 @@
 添加阿里云镜像作为gradle下载源
 ================
-将根目录下的settings.gradle文件中，`repositories`标签整体替换成如下内容：  
+在根目录下的build.gradle文件中的`repositories`标签内添加如下内容 
 ```
 repositories {
         maven {
@@ -8,11 +8,6 @@ repositories {
         }
         gradlePluginPortal {
             url = 'https://maven.aliyun.com/repository/gradle-plugin'
-        }
-        gradlePluginPortal()
-        maven {
-            name = 'MinecraftForge'
-            url = 'https://maven.minecraftforge.net/'
         }
     }
 ```
