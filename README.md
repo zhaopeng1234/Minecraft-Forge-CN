@@ -12,7 +12,8 @@
 ============
 
 * ### 起步
-  * #### [从零开始](/docs/gettingstarted/index.md) 
+  * #### [从零开始](/docs/gettingstarted/index.md) done
+  * #### [mod文件](/docs/gettingstarted/modfiles.md) 
   * #### [mod的文件结构](/docs/gettingstarted/structuring.md) 
   * #### [版本控制](/docs/gettingstarted/versioning.md) 
 * ### 核心概念
