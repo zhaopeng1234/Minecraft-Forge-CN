@@ -1,14 +1,13 @@
-Mod Files
+Mod文件（Mod Files）
 =========
+mod文件负责决定将哪些mod打包到你的JAR包中，在"Mods"菜单中显示哪些信息，以及如何在游戏中加载你的mod。
 
-The mod files are responsible for determining what mods are packaged into your JAR, what information to display within the 'Mods' menu, and how your mod should be loaded in the game.
 
 mods.toml
 ---------
+`mods.toml`文件定义了你的mod的元数据。它也包含了在"Mods"菜单中显示的额外信息，以及在游戏中加载mod的方式。
 
-The `mods.toml` file defines the metadata of your mod(s). It also contains additional information that is displayed within the 'Mods' menu and how your mod(s) should be loaded into the game.
-
-The file uses the [Tom's Obvious Minimal Language, or TOML][toml], format. The file must be stored under the `META-INF` folder in the resource directory of the source set you are using (`src/main/resources/META-INF/mods.toml` for the `main` source set). A `mods.toml` file may look something like this:
+该文件使用[TOML][toml]格式。该文件必须存放在你的资源目录（`src/main/resources`）下的`META-INF`文件夹中，`mods.toml`文件看起来是这样的：
 
 ```toml
 modLoader="javafml"
@@ -47,56 +46,57 @@ showAsResourcePack=false
   side="BOTH"
 ```
 
-`mods.toml` is broken into three parts: the non-mod-specific properties, which are linked to the mod file; the mod properties, with a section for each mod; and the dependency configurations, with a section for each mod's or mods' dependencies. Each of the properties associated with the `mods.toml` file will be explained below, where `required` means that a value must be specified or an exception will be thrown.
+`mods.toml`文件被分为三部分：非特定mod的属性，这些属性与mod文件相关；mod属性，每个mod各有一段；以及依赖配置，每个mod或mod的依赖各有一段。下面将详细解释`mods.toml`文件中的各个属性，其中标为`强制`的属性表示必须指定一个值，否则将抛出异常。
 
-### Non-Mod-Specific Properties
+### 非特定mod的属性（Non-mod-specific properties）
 
-Non-mod-specific properties are properties associated with the JAR itself, indicating how to load the mod(s) and any additional global metadata.
+非特定mod的属性是和jar包自身相关的属性，指示mod如何加载，以及一些额外的全局元数据
 
 Property             | Type    | Default       | Description | Example
 :---                 | :---:   | :---:         | :---:       | :---
-`modLoader`          | string  | **mandatory** | The language loader used by the mod(s). Can be used to support alternative language structures, such as Kotlin objects for the main file, or different methods of determining the entrypoint, such as an interface or method. Forge provides the Java loader `"javafml"` and low/no code loader `"lowcodefml"`. | `"javafml"`
-`loaderVersion`      | string  | **mandatory** | The acceptable version range of the language loader, expressed as a [Maven Version Range][mvr]. For `javafml` and `lowcodefml`, the version is the major version of the Forge version. | `"[46,)"`
-`license`            | string  | **mandatory** | The license the mod(s) in this JAR are provided under. It is suggested that this is set to the [SPDX identifier][spdx] you are using and/or a link to the license. You can visit https://choosealicense.com/ to help pick the license you want to use. | `"MIT"`
-`showAsResourcePack` | boolean | `false`       | When `true`, the mod(s)'s resources will be displayed as a separate resource pack on the 'Resource Packs' menu, rather than being combined with the 'Mod resources' pack. | `true`
-`services`           | array   | `[]`          | An array of services your mod **uses**. This is consumed as part of the created module for the mod from Forge's implementation of the Java Platform Module System. | `["net.minecraftforge.forgespi.language.IModLanguageProvider"]`
-`properties`         | table   | `{}`          | A table of substitution properties. This is used by `StringSubstitutor` to replace `${file.<key>}` with its corresponding value. This is currently only used to replace the `version` in the [mod-specific properties][modsp]. | `{ "example" = "1.2.3" }` referenced by `${file.example}`
-`issueTrackerURL`    | string  | *nothing*     | A URL representing the place to report and track issues with the mod(s). | `"https://forums.minecraftforge.net/"`
+`modLoader`          | string  | **强制** | mod使用的语言加载器，可以用于支持多种语言结构，例如mod主文件使用的Kotlin对象，或者定义了不同入口点的方法，例如接口或方法，forge提供了Java语言加载器`"javafml"`和低代码加载器`"lowcodefml"` | `"javafml"`
+`loaderVersion`      | string  | **强制** | 可接受的语言加载器的版本范围，用[Maven版本范围][mvr]表示。对于`javafml`和`lowcodefml`，该版本号是Forge版本的主版本号| `"[46,)"`
+`license`            | string  | **强制** | 本jar包中的mod所使用的许可证。建议使用[SPDX标识符][spdx] 和/或 指向你所用的许可证的链接。你可以访问https://choosealicense.com/ 帮助你选择你要使用的许可证 | `"MIT"`
+`showAsResourcePack` | boolean | `false`       | 如果值是`true`，多个mod的资源会在“资源包”菜单中被显示为独立的资源包，而不是组合成一个“mod资源”包。 | `true`
+`services`           | array   | `[]`          | 你的mod**使用**的服务的数组。在Forge对JAVA模块化系统（JPMS）的实现中，会将这些服务作为为mod模块中的一部分加载。 | `["net.minecraftforge.forgespi.language.IModLanguageProvider"]`
+`properties`         | table   | `{}`          | 替换属性表。`StringSubstitutor`使用表中对应的值来替换`${file.<key>}`。这目前只用于替换[mod属性][modsp]中的`version`属性 | `{ "example" = "1.2.3" }` 用于替换 `${file.example}`
+`issueTrackerURL`    | string  | *空*     | 一个用于报告和追踪mod问题的网址。 | `"https://forums.minecraftforge.net/"`
 
-!!! important
-    The `services` property is functionally equivalent to specifying the [`uses` directive in a module][uses], which allows [*loading*][serviceload] a service of a given type.
+!!! 重要
+  `services`属性在功能上和使用模块的[`uses`][uses]指令是相同的，这允许程序[*加载*][serviceload]一个指定类型的服务。  
 
-### Mod-Specific Properties
+### mod属性（Mod-Specific Properties）
 
-Mod-specific properties are tied to the specified mod using the `[[mods]]` header. This is an [array of tables][array]; all key/value properties will be attached to that mod until the next header.
+mod属性使用`[[mods]]`标头与指定的模块绑定。这是一个[表数组][array]：直到下一个标头为止的所有键值对，都将作为该mod的属性。
+
 
 ```toml
-# Properties for examplemod1
+# examplemod1的属性
 [[mods]]
 modId = "examplemod1"
 
-# Properties for examplemod2
+# examplemod2的属性
 [[mods]]
 modId = "examplemod2"
 ```
 
 Property        | Type    | Default                 | Description | Example
 :---            | :---:   | :---:                   | :---:       | :---
-`modId`         | string  | **mandatory**           | The unique identifier representing this mod. The id must match `^[a-z][a-z0-9_]{1,63}$` (a string 2-64 characters; starts with a lowercase letter; made up of lowercase letters, numbers, or underscores). | `"examplemod"`
-`namespace`     | string  | value of `modId`        | An override namespace for the mod. The namespace much match `^[a-z][a-z0-9_.-]{1,63}$` (a string 2-64 characters; starts with a lowercase letter; made up of lowercase letters, numbers, underscores, dots, or dashes). Currently unused. | `"example"`
-`version`       | string  | `"1"`                   | The version of the mod, preferably in a [variation of Maven versioning][mvnver]. When set to `${file.jarVersion}`, it will be replaced with the value of the `Implementation-Version` property in the JAR's manifest (displays as `0.0NONE` in a development environment). | `"1.20-1.0.0.0"`
-`displayName`   | string  | value of `modId`        | The pretty name of the mod. Used when representing the mod on a screen (e.g., mod list, mod mismatch). | `"Example Mod"`
-`description`   | string  | `"MISSING DESCRIPTION"` | The description of the mod shown in the mod list screen. It is recommended to use a [multiline literal string][multiline]. | `"This is an example."`
-`logoFile`      | string  | *nothing*               | The name and extension of an image file used on the mods list screen. The logo must be in the root of the JAR or directly in the root of the source set (e.g., `src/main/resources` for the main source set). | `"example_logo.png"`
-`logoBlur`      | boolean | `true`                  | Whether to use `GL_LINEAR*` (true) or `GL_NEAREST*` (false) to render the `logoFile`. | `false`
-`updateJSONURL` | string  | *nothing*               | A URL to a JSON used by the [update checker][update] to make sure the mod you are playing is the latest version. | `"https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"`
-`features`      | table   | `{}`                    | See '[features]'. | `{ java_version = "17" }`
-`modproperties` | table   | `{}`                    | A table of key/values associated with this mod. Currently unused by Forge, but is mainly for use by mods. | `{ example = "value" }` 
-`modUrl`        | string  | *nothing*               | A URL to the download page of the mod. Currently unused. | `"https://files.minecraftforge.net/"`
-`credits`       | string  | *nothing*               | Credits and acknowledges for the mod shown on the mod list screen. | `"The person over here and there."`
-`authors`       | string  | *nothing*               | The authors of the mod shown on the mod list screen. | `"Example Person"`
-`displayURL`    | string  | *nothing*               | A URL to the display page of the mod shown on the mod list screen. | `"https://minecraftforge.net/"`
-`displayTest`   | string  | `"MATCH_VERSION"`       | See '[sides]'. | `"NONE"`
+`modId`         | string  | **强制**           | 代表mod的唯一标识符，id必须符合`^[a-z][a-z0-9_]{1,63}$`的规则：以小写字母开头，由2至64个小写字母/数字/下划线组成。 | `"examplemod"`
+`namespace`     | string  | `modId`属性的值        | 覆盖mod的命名空间。必须符合`^[a-z][a-z0-9_.-]{1,63}$`的规则：以小写字母开头，由2至64个小写字母/数字/下划线/./- 组成。目前没有使用。 | `"example"`
+`version`       | string  | `"1"`                   | mod的版本号，推荐使用[Maven式版本号][mvnver]。如果设置为`${file.jarVersion}`，会被替换为JAR包中manifest文件的`Implementation-Version`属性（在开发环境中显示为`0.0NONE`）。 | `"1.20-1.0.0.0"`
+`displayName`   | string  | `modId`属性的值        | 更易读的mod名称。用于在mod列表中或者mod不匹配时展示。 | `"Example Mod"`
+`description`   | string  | `"MISSING DESCRIPTION"` | 在mod列表页面中展示的mod说明。推荐使用[多行字符串文字][multiline]。 | `"This is an example."`
+`logoFile`      | string  | *空*               | 在mod列表中使用的图片的文件名和后缀。logo必须在JAR包或者资源目录（`src/main/resources`）的根目录下。 | `"example_logo.png"`
+`logoBlur`      | boolean | `true`                  | 使用`GL_LINEAR*`（true）还是`GL_NEAREST*`（false）渲染`logoFile`。 | `false`
+`updateJSONURL` | string  | *nothing*               | 指向一个JSON文件的网址，[更新检查器][update]用该文件确保你正在使用最新版本的mod。 | `"https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"`
+`features`      | table   | `{}`                    | 参照 “[features]” | `{ java_version = "17" }`
+`modproperties` | table   | `{}`                    | 与该mod相关的一个键/值对列表。目前Forge没有使用，主要是给mod用。 | `{ example = "value" }` 
+`modUrl`        | string  | *空*               | 指向mod下载地址的网址。目前没有使用。 | `"https://files.minecraftforge.net/"`
+`credits`       | string  | *空*               | 在mod列表页面显示的功劳和鸣谢 | `"The person over here and there."`
+`authors`       | string  | *空*               | 在mod列表页面显示的作者列表 | `"Example Person"`
+`displayURL`    | string  | *空*               | 在mod列表页面显示的mod主页 | `"https://minecraftforge.net/"`
+`displayTest`   | string  | `"MATCH_VERSION"`       | 参照“[sides]” | `"NONE"`
 
 #### Features
 
