@@ -1,10 +1,11 @@
-# Documentation
-This is the official MinecraftForge documentation, located at https://docs.minecraftforge.net.
+# 文档
+这里**不是**[MinecraftForge](https://docs.minecraftforge.net)官方文档，仅为个人翻译行为。
 
-It is intended to provide detailed documentation of Forge development concepts. This does not include javadocs.
+其目的是方便中文开发者能够跳过语言关卡，更方便地开发minecraft的mod。然而，这仍然需要你具有一定的java开发经验，以处理代码相关的问题。
 
-The intent with this is to create a curated *definitive* source of documentation for developing mods with Forge. It is not a Java language tutorial, and basic concepts of Java should not be part of this documentation. Excessive example code will be avoided in lieu of more thorough explanations.
+对于一些原文档描述模糊的部分，我也会添加一些自己开发过程中的经验。
 
-Feel free to submit pull requests related to documentation of Forge development here. See [CONTRIBUTING.md](/CONTRIBUTING.md)
+如果翻译或示例有错误，欢迎在讨论区指出。
 
-Don't expect this to be constantly being updated, though we will try and remedy egregious errors more quickly.
+
+# 目录
