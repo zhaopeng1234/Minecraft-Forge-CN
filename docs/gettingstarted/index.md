@@ -1,111 +1,97 @@
-Getting Started with Forge
+
+Forge 入门
 ==========================
 
-If you have never made a Forge mod before, this section will provide the minimum amount of information needed to setup a Forge development environment. The rest of the documentation is about where to go from here.
+如果您以前从未使用Forge制作过Mod，本节将提供设置Forge开发环境所需的最基本信息。 接下来将介绍具体的步骤。
 
-Prerequisites
+准备环境
 -------------
 
-* An installation of the Java 17 Development Kit (JDK) and 64-bit Java Virtual Machine (JVM). Forge recommends and officially supports [Eclipse Temurin][jdk].
+* 安装`JDK17`和**64位**JVM。Forge官方支持并推荐[Eclipse Temurin][jdk]。
 
-    !!! warning
-        Make sure you are using a 64-bit JVM. One way of checking is to run `java -version` in a terminal. Using a 32-bit JVM will cause some problems when using [ForgeGradle].
+    !!! 警告
+    确保您使用的是 64 位 JVM。检查方法是在终端中运行`java -version`。使用 [ForgeGradle] 时，使用 32 位 JVM 会导致一些问题。
 
-* Familiarity with an Integrated Development Environment (IDE).
-    * It is recommended to use an IDE with Gradle integration.
+* 你熟悉的集成开发环境 (IDE).
+    * 建议使用集成了 Gradle 的集成开发环境（译者注：本人后续的示例均为在IDEA 2023.1版本下操作）。
 
-From Zero to Modding
+从零开始制作Mod
 --------------------
 
-1. Download the Mod Developer Kit (MDK) from the [Forge file site][files] by clicking 'Mdk' followed by the 'Skip' button in the top right after waiting for a period of time. It is recommended to download the latest version of Forge whenever possible.
-1. Extract the downloaded MDK into an empty directory. This will be your mod's directory, which should now contain some gradle files and a `src` subdirectory containing the example mod.
+1.  从[Forge 文件站点][files]下载 Mod 开发包 (MDK)，点击"Mdk"按钮，在页面上等待一段时间后点击右上角的  "Skip "按钮。 建议尽可能下载最新版本的 Forge。
 
-    !!! note
-        A number of files can be reused across different mods. These files are:
+2.  将下载的 MDK 解压缩到一个空目录中。 这将是您的 mod 目录，其中包含一些 gradle 文件和一个包含示例 mod 的 `src` 子目录。
+!!! 注意 以下文件可以在不同的 Mod 中重复使用：
+    * `gradle` 子目录
+    * `build.gradle`
+    * `gradlew`
+    * `gradlew.bat`
+    * `settings.gradle`<br/>
+`src`子目录无需在workspace之间复制； 但是，如果稍后创建了 java (`src/main/java`) 和resource目录 (`src/main/resources`)，则可能需要刷新 Gradle 项目。
 
-        * the `gradle` subdirectory
-        * `build.gradle`
-        * `gradlew`
-        * `gradlew.bat`
-        * `settings.gradle`
+3. 在你的 IDE中打开项目:
+    * Forge 仅明确支持在 Eclipse 和 IntelliJ IDEA 上进行开发，但也有在 Visual Studio Code 上使用的运行配置。 另外，从 Apache NetBeans 到 Vim / Emacs 等任何环境都可以使用。
+    * Eclipse 和 IntelliJ IDEA 的 Gradle 集成（均已安装并默认启用）将在导入或打开项目时自动处理其余的初始工作区设置。 包括从 Mojang、MinecraftForge 等下载必要的软件包。Visual Studio Code 需要 "Gradle for Java "插件来完成同样的工作。
+    * 在IDE完成对Gradle相关的文件（例如，`build.gradle`、`settings.gradle`等）的加载后，需要调用Gradle以重新加载项目。 一些IDE带有 "刷新 "按钮来完成此操作；但也可以在终端中使用`gradlew`命令来完成此操作。
+    * 译者注：国内开发者可能需要使用[本地代理][proxy]或者是添加[镜像][mirror]以进行依赖包的下载，推荐使用前一种方式。
+4. 在所选 IDE中为项目生成运行配置：
+    * **Eclipse**: 运行`genEclipseRuns`任务。
+    * **IntelliJ IDEA**: 运行 `genIntellijRuns` 任务。 如果出现 "module not specified"错误，请将[`ideaModule`属性][config]的值设置为你的主模块名称（通常为`${project.name}.main`）。
+    * **Visual Studio Code**: 运行`genVSCodeRuns`任务。
+    * **Other IDEs**: 您可以使用 `gradle run*` 直接运行配置（例如，`runClient`）、 `runClient`、`runServer`、 `runData`、`runGameTestServer`）。 这些命令也可以在受支持的IDE中使用。
 
-        The `src` subdirectory does not need to be copied across workspaces; however, you may need to refresh the Gradle project if the java (`src/main/java`) and resource (`src/main/resources`) are created later.
-
-1. Open your selected IDE:
-    * Forge only explicitly supports development on Eclipse and IntelliJ IDEA, but there are additional run configurations for Visual Studio Code. Regardless, any environment, from Apache NetBeans to Vim / Emacs, can be used.
-    * Eclipse and IntelliJ IDEA's Gradle integration, both installed and enabled by default, will handle the rest of the initial workspace setup on import or open. This includes downloading the necessary packages from Mojang, MinecraftForge, etc. The 'Gradle for Java' plugin is needed for Visual Studio Code to do the same.
-    * Gradle will need to be invoked to re-evaluate the project for almost all changes to its associated files (e.g., `build.gradle`, `settings.gradle`, etc.). Some IDEs come with 'Refresh' buttons to do this; however, it can be done through the terminal via `gradlew`.
-1. Generate run configurations for your selected IDE:
-    * **Eclipse**: Run the `genEclipseRuns` task.
-    * **IntelliJ IDEA**: Run the `genIntellijRuns` task. If a "module not specified" error occurs, set the [`ideaModule` property][config] to your 'main' module (typically `${project.name}.main`).
-    * **Visual Studio Code**: Run the `genVSCodeRuns` task.
-    * **Other IDEs**: You can run the configurations directly using `gradle run*` (e.g., `runClient`, `runServer`, `runData`, `runGameTestServer`). These can also be used with the supported IDEs.
-
-Customizing Your Mod Information
+自定义您的Mod信息
 --------------------------------
 
-Edit the `build.gradle` file to customize how your mod is built (e.g., file name, artifact version, etc.).
+编辑`build.gradle`文件以自定义构建 MOD 的方式（例如文件名、工件版本等）。
 
-!!! important
-    Do **not** edit the `settings.gradle` unless you know what you are doing. The file specifies the repository that [ForgeGradle] is uploaded to.
+!!! 重要
+请**不要**编辑`settings.gradle`文件，除非您明确知道自己在做什么。 该文件指定了 [ForgeGradle] 使用的版本库。
+   
 
-### Recommended `build.gradle` Customizations
+### 推荐的`build.gradle`自定义选项。
 
-#### Mod Id Replacement
+#### Mod ID
 
-Replace all occurrences of `examplemod`, including [`mods.toml` and the main mod file][modfiles] with the mod id of your mod. This also includes changing the name of the file you build by setting `base.archivesName` (this is typically set to your mod id).
+将gradle.properties中的 `mod_id`属性设置为您的 mod id。另外，还可以在build.gradle文件中设置`base.archivesName`属性来更改您创建的文件的名称（默认为您的mod id）。
 
-```gradle
-// In some build.gradle
-base.archivesName = 'mymod'
-```
+#### Group ID
 
-#### Group Id
+将gradle.properties中的`mod_group_id` 属性设置为您的[顶层软件包名][packaging]，这应该是您拥有的域名或您的电子邮件地址：
 
-The `group` property should be set to your [top-level package][packaging], which should either be a domain you own or your email address:
-
-Type      | Value             | Top-Level Package
+类型      | 值             | 顶层软件包
 :---:     | :---:             | :---
-Domain    | example.com       | `com.example`
-Subdomain | example.github.io | `io.github.example`
-Email     | example@gmail.com | `com.gmail.example`
+域名    | example.com       | `com.example`
+子域名  | example.github.io | `io.github.example`
+电子邮箱 | example@gmail.com | `com.gmail.example`
 
-```gradle
-// In some build.gradle
-group = 'com.example'
-```
-
-The packages within your java source (`src/main/java`) should also now conform to this structure, with an inner package representing the mod id:
-
+您的 java 源代码（`src/main/java`）中的包名也应符合此结构，内部的包名与mod id相同：
+ `src/main/java`：
 ```text
 com
-- example (top-level package specified in group property)
-  - mymod (the mod id)
-    - MyMod.java (renamed ExampleMod.java)
+- example (mod_group_id属性中指定的顶层软件包)
+  - mymod (mod id)
+    - MyMod.java (重命名自ExampleMod.java)
 ```
 
 #### Version
 
-Set the `version` property to the current version of your mod. We recommend using a [variation of Maven versioning][mvnver].
+将gradle.properties中的`mod_version`属性设置为 MOD 的当前版本。 我们建议使用 [Maven 版本控制][mvnver]。
 
-```gradle
-// In some build.gradle
-version = '1.20-1.0.0.0'
-```
 
-### Additional Configurations
+#### 其他配置
 
-Additional configurations can be found on the [ForgeGradle] docs.
+其他配置可参见 [ForgeGradle] 文档。
 
-Building and Testing Your Mod
+构建和测试您的模块
 -----------------------------
 
-1. To build your mod, run `gradlew build`. This will output a file in `build/libs` with the name `[archivesBaseName]-[version].jar`, by default. This file can be placed in the `mods` folder of a Forge-enabled Minecraft setup or distributed.
-1. To run your mod in a test environment, you can either use the generated run configurations or use the associated tasks (e.g. `gradlew runClient`). This will launch Minecraft from the run directory (default 'run') along with any source sets specified. The default MDK includes the `main` source set, so any code written in `src/main/java` will be applied.
-1. If you are running a dedicated server, whether through the run configuration or `gradlew runServer`, the server will initially shut down immediately. You will need to accept the Minecraft EULA by editing the `eula.txt` file in the run directory. Once accepted, the server will load, which can then be accessed via a direct connect to `localhost`.
+1. 要编译您的 MOD，请运行build任务（或`gradlew build`命令） 。 这将在`build/libs`中输出一个文件，默认名称为`[archivesBaseName]-[version].jar`。 此文件可放置在使用 Forge 的 Minecraft 客户端的`mods` 文件夹中或在网上进行分发。
+2. 要在测试环境中运行您的 MOD，可以使用自动生成的运行配置或运行相关任务（如 gradlew runClient）。 这将在运行目录下（默认为 "`/run`"）加载指定的资源启动 Minecraft。默认情况下MDK会加载`main`目录下的源代码，因此在`src/main/java`中编写的任何代码都将被应用。
+3. 如果您通过运行配置或 `gradlew runServer` 第一次运行专用服务器，服务器将立即关闭。 您需要通过编辑运行目录中的`eula.txt`文件来接受 Minecraft EULA。 接受后，服务器将加载，然后可以通过直连 `localhost`访问服务器。
 
-!!! note
-    You should always test your mod in a dedicated server environment. This includes [client-only mods][client] as they should not do anything when loaded on the server.
+!!! 注意
+    您应始终在专用服务器环境中测试您的 Mod。 这也包括[客户端专用mod][客户端]，因为它们在服务器上加载时不应执行任何操作。
 
 [jdk]: https://adoptium.net/temurin/releases?version=17 "Eclipse Temurin 17 Prebuilt Binaries"
 [ForgeGradle]: https://docs.minecraftforge.net/en/fg-6.x
@@ -117,3 +103,6 @@ Building and Testing Your Mod
 [packaging]: ./structuring.md#packaging
 [mvnver]: ./versioning.md
 [client]: ../concepts/sides.md#writing-one-sided-mods
+
+[proxy]: https://jingyan.baidu.com/article/75ab0bcbbcac3197874db240.html
+[mirror]: https://www.cnblogs.com/amadeuslee/p/17953008
