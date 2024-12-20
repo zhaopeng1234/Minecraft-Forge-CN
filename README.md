@@ -10,7 +10,7 @@
 # 目录
 
 * ### Getting Started:
-    - [Introduction](/docs/gettingstarted/index.md)
+    - [Forge 入门](/docs/gettingstarted/index.md)
     - [The Mod Files](/docs/gettingstarted/modfiles.md)
     - [Structuring Your Mod](/docs/gettingstarted/structuring.md)
     - [Versioning](/docs/gettingstarted/versioning.md)
