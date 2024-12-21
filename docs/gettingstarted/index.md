@@ -87,7 +87,7 @@ com
 -----------------------------
 
 1. 要编译您的 MOD，请运行build任务（或`gradlew build`命令） 。 这将在`build/libs`中输出一个文件，默认名称为`[archivesBaseName]-[version].jar`。 此文件可放置在使用 Forge 的 Minecraft 客户端的`mods` 文件夹中或在网上进行分发。
-2. 要在测试环境中运行您的 MOD，可以使用自动生成的运行配置或运行相关任务（如 gradlew runClient）。 这将在运行目录下（默认为 "`/run`"）加载指定的资源启动 Minecraft。默认情况下MDK会加载`main`目录下的源代码，因此在`src/main/java`中编写的任何代码都将被应用。
+2. 要在测试环境中运行您的 MOD，可以使用自动生成的运行配置或运行相关任务（如 gradlew runClient）。 这将在运行目录下（默认为 "`/run`"）加载指定的资源文件启动 Minecraft。默认情况下MDK会加载`main`目录下的源代码，因此在`src/main/java`中编写的任何代码都将被应用。
 3. 如果您通过运行配置或 `gradlew runServer` 第一次运行专用服务器，服务器将立即关闭。 您需要通过编辑运行目录中的`eula.txt`文件来接受 Minecraft EULA。 接受后，服务器将加载，然后可以通过直连 `localhost`访问服务器。
 
 !!! 注意
