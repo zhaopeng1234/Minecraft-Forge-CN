@@ -11,7 +11,7 @@
 
 * ### Getting Started:
     - [Forge 入门](/docs/gettingstarted/index.md)
-    - [The Mod Files](/docs/gettingstarted/modfiles.md)
+    - [Mod文件](/docs/gettingstarted/modfiles.md)
     - [Structuring Your Mod](/docs/gettingstarted/structuring.md)
     - [Versioning](/docs/gettingstarted/versioning.md)
 * ### Core Concepts:
