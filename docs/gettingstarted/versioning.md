@@ -1,56 +1,57 @@
-Versioning
+
+版本控制
 ==========
 
-In general projects, [semantic versioning][semver] is often used (which has the format `MAJOR.MINOR.PATCH`). However, in the case of modding it may be more beneficial to use the format `MCVERSION-MAJORMOD.MAJORAPI.MINOR.PATCH` to be able to differentiate between world-breaking and API-breaking changes of a mod.
+在一般项目中，经常使用[语义化版本][semver]（其格式为`主版本.小版本.补丁包`）。 但是，在开发Mod时，使用`MC版本-Mod主版本.API主版本.小版本.补丁包`格式可能更有益处，因为这样可以区分mod版本会破坏世界或者破坏API。
 
-!!! important
-    Forge uses [Maven version ranges][cmpver] to compare version strings, which is not fully compatible with the Semantic Versioning 2.0.0 spec, such as the 'prerelease' tag.
+!!! 重要
+    Forge使用[Maven版本范围][cmpver]来比较版本字符串，而这与语义化版本2.0.0规范并不完全兼容（如 "prerelease "标记）。
 
-Examples
+示例
 --------
 
-Here is a list of examples that can increment the various variables.
+下面列出了可以递增各种变量的示例。
 
-* `MCVERSION`
-  * Always matches the Minecraft version the mod is for.
-* `MAJORMOD`
-  * Removing items, blocks, block entities, etc.
-  * Changing or removing previously existing mechanics.
-  * Updating to a new Minecraft version.
-* `MAJORAPI`
-  * Changing the order or variables of enums.
-  * Changing return types of methods.
-  * Removing public methods altogether.
-* `MINOR`
-  * Adding items, blocks, block entities, etc.
-  * Adding new mechanics.
-  * Deprecating public methods. (This is not a `MAJORAPI` increment since it doesn't break an API.)
-* `PATCH`
-  * Bugfixes.
+* `MC版本(MCVERSION)`
+  * 始终与该 mod 适用的 Minecraft 版本一致。
+* `Mod主版本(MAJORMOD)`
+  *  删除物品、方块、方块实体等。
+  *  更改或删除先前存在的机制。
+  *  更新到新的 Minecraft 版本。
+* `API主版本(MAJORAPI)`
+  * 更改枚举的顺序或变量。
+  * 更改方法的返回类型。
+  * 完全删除公共方法
+* `小版本(MINOR)`
+  * 添加物品、方块、方块实体等。
+  * 增加新的机制。
+  * 将公共方法标记为过期。 (这不是一个`API主版本`增量，因为它不会破坏 API。
+* `补丁版本(PATCH)`
+  * 漏洞修复。
 
-When incrementing any variable, all lesser variables should reset to `0`. For instance, if `MINOR` would increment, `PATCH` would become `0`. If `MAJORMOD` would increment, all other variables would become `0`.
+递增任何变量时，所有靠后的变量都应重置为`0`。 例如，如果`小版本`递增，`补丁版本`将变成`0`。 如果`Mod主版本`递增，所有其他变量将变成`0`.。
 
-### Work In Progress
+### 进行中的工作
 
-If you are in the initial development stage of your mod (before any official releases), the `MAJORMOD` and `MAJORAPI` should always be `0`. Only `MINOR` and `PATCH` should be updated every time you build your mod. Once you build an official release (most of the time with a stable API), you should increment `MAJORMOD` to version `1.0.0.0`. For any further development stages, refer to the [Prereleases][pre] and [Release candidates][rc] section of this document.
+如果您正处于 MOD 的初始开发阶段（在任何正式版本发布之前），`Mod主版本` 和`API主版本`应始终为`0`。 只有`小版本`和`补丁版本`应在每次创建 MOD 时更新。 一旦您构建了一个正式版本（大多数情况下是一个稳定的 API），您应该将 `Mod主版本` 增至版本 `1.0.0.0` 。 有关其余的开发阶段，请参阅本文档的 [预发布][pre] 和 [发布候选][rc] 部分。
 
-### Multiple Minecraft Versions
+### 多个 Minecraft 版本
 
-If the mod upgrades to a new version of Minecraft, and the old version will only receive bug fixes, the `PATCH` variable should be updated based on the version before the upgrade. If the mod is still in active development in both the old and the new version of Minecraft, it is advised to append the version to **both** build numbers. For example, if the mod is upgraded to version `3.0.0.0` due to a Minecraft version change, the old mod should also be updated to `3.0.0.0`. The old version will become, for example, version `1.7.10-3.0.0.0`, while the new version will become `1.8-3.0.0.0`. If there are no changes at all when building for a newer Minecraft version, all variables except for the Minecraft version should stay the same.
+如果 MOD 升级到新版本的 Minecraft，而旧版本只接收错误修复，则旧版本应根据升级前的版本号更新`补丁版本` 变量。如果该 MOD 在新旧版本的 Minecraft 中都仍处于开发阶段，建议**同时更新**它们的版本号。 例如，如果由于 Minecraft 版本更改而将 mod 升级到 `3.0.0.0` 版本，则旧 mod 也应更新为 `3.0.0.0` 版本。 例如，旧版本将成为 `1.7.10-3.0.0.0` 版本，而新版本将成为 `1.8-3.0.0.0` 版本。 如果在更新Minecraft版本时没有任何更改，则除 Minecraft 版本外的所有变量都应保持不变。
 
-### Final Release
+### 最终版本
 
-When dropping support for a Minecraft version, the last build for that version should get the `-final` suffix. This denotes that the mod will no longer be supported for the denoted `MCVERSION` and that players should upgrade to a newer version of the mod to continue receiving updates and bug fixes.
+当放弃对某个 Minecraft 版本的支持时，该版本的最后构建应获得`-final`后缀。 这表示该 MOD 将不再支持所指的 `MCVERSION` 版本，玩家应升级到较新版本的 MOD 以继续接收更新和错误修复。
 
-### Pre-releases
+### 预发布
 
-It is also possible to prerelease work-in-progress features, which means new features are released that are not quite done yet. These can be seen as a sort of "beta". These versions should be appended with `-betaX`, where `X` is the number of the prerelease. (This guide does not use `-pre` since, at the time of writing, it is not a valid alias for `-beta`.) Note that already released versions and versions before the initial release can not go into prerelease; variables (mostly `MINOR`, but `MAJORAPI` and `MAJORMOD` can also prerelease) should be updated accordingly before adding the `-beta` suffix. Versions before the initial release are simply work-in-progress builds.
+此外，还可以预先发布正在开发的功能，即发布尚未完成的新功能。这可以看作是一种 "beta"版本。 这些版本应附加`-betaX`，其中`X`是预发布版本的编号。 (本指南不使用`-pre`，因为在编写本指南时，它不是`-beta`的有效别名）。 请注意，已发布的版本和首次发布前的版本不能进入预发布； 变量（主要是`小版本`，但是 `API主版本` 和 `Mod主版本` 也可以）应当在添加 `-beta` 后缀之前进行相应的更新。首次发布前的版本只是工作进展中的构建版本。
 
-### Release Candidates
+### 发布候选
 
-Release candidates act as prereleases before an actual version change. These versions should be appended with `-rcX`, where `X` is the number of the release candidate which should, in theory, only be increased for bugfixes. Already released versions can not receive release candidates; variables (mostly `MINOR`, but `MAJORAPI` and `MAJORMOD` can also prerelease)  should be updated accordingly before adding the `-rc` suffix. When releasing a release candidate as stable build, it can either be exactly the same as the last release candidate or have a few more bug fixes.
+候选发布版是实际版本变更前的预发布版。这些版本应附加`-rcX`，其中`X`是候选发布版本的编号，理论上只有在进行错误修复时才会增加。已发布的版本不能添加候选发布版本； 变量（主要是`小版本`、 但是 `API主版本` 和 `Mod主版本` 也可以）应当在添加`-rc` 后缀之前进行相应的更新。 在发布候选发布版本作为稳定版时，这些变量可以与上一个候选发布版本完全相同，也可以有更多的错误修复。
 
 [semver]: https://semver.org/
 [cmpver]: https://maven.apache.org/ref/3.5.2/maven-artifact/apidocs/org/apache/maven/artifact/versioning/ComparableVersion.html
-[pre]: #pre-releases
-[rc]: #release-candidates
+[pre]: #预发布
+[rc]: #发布候选
