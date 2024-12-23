@@ -9,7 +9,7 @@
 
 # 目录
 
-* ### Getting Started:
+* ### 从零开始:
     - [Forge 入门](/docs/gettingstarted/index.md)
     - [Mod文件](/docs/gettingstarted/modfiles.md)
     - [结构化你的mod](/docs/gettingstarted/structuring.md)
