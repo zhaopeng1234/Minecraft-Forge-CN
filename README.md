@@ -14,7 +14,7 @@
     - [Mod文件](/docs/gettingstarted/modfiles.md)
     - [结构化你的mod](/docs/gettingstarted/structuring.md)
     - [版本控制](/docs/gettingstarted/versioning.md)
-* ### Core Concepts:
+* ### 核心概念:
     - [注册表](/docs/concepts/registries.md)
     - [Sides](/docs/concepts/sides.md)
     - [Events](/docs/concepts/events.md)
