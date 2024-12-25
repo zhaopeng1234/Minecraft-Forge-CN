@@ -16,7 +16,7 @@
     - [版本控制](/docs/gettingstarted/versioning.md)
 * ### 核心概念:
     - [注册表](/docs/concepts/registries.md)
-    - [Sides](/docs/concepts/sides.md)
+    - [端](/docs/concepts/sides.md)
     - [Events](/docs/concepts/events.md)
     - [Mod Lifecycle](/docs/concepts/lifecycle.md)
     - [Resources](/docs/concepts/resources.md)
