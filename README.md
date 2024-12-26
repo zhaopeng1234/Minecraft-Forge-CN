@@ -17,7 +17,7 @@
 * ### 核心概念:
     - [注册表](/docs/concepts/registries.md)
     - [端](/docs/concepts/sides.md)
-    - [Events](/docs/concepts/events.md)
+    - [事件](/docs/concepts/events.md)
     - [Mod Lifecycle](/docs/concepts/lifecycle.md)
     - [Resources](/docs/concepts/resources.md)
     - [Internationalization](/docs/concepts/internationalization.md)
