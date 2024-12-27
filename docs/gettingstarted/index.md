@@ -63,7 +63,7 @@ Forge 入门
 :---:     | :---:             | :---
 域名    | example.com       | `com.example`
 子域名  | example.github.io | `io.github.example`
-电子邮箱 | example@gmail.com | `com.gmail.example`
+电子邮箱 | example<span>@</span>gmail.com | `com.gmail.example`
 
 您的 java 源代码（`src/main/java`）中的包名也应符合此结构，内部的包名与mod id相同：
  `src/main/java`：
