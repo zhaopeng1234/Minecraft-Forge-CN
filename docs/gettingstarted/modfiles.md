@@ -160,8 +160,8 @@ public class Example {
 [mvnver]: ./versioning.md
 [multiline]: https://toml.io/en/v1.0.0#string
 [update]: ../misc/updatechecker.md
-[features]: #features
-[sides]: ../concepts/sides.md#writing-one-sided-mods
-[dist]: ../concepts/sides.md#different-kinds-of-sides
+[features]: #特性
+[sides]: ../concepts/sides.md#编写单端mod
+[dist]: ../concepts/sides.md#不同类型的“端”
 [events]: ../concepts/events.md
-[registration]: ../concepts/registries.md#deferredregister
+[registration]: ../concepts/registries.md#延迟注册
