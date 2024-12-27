@@ -189,7 +189,7 @@ class Holder {
 
 如果未指定任何操作，那么默认操作将通过通知用户缺失的条目以及是否还想加载世界来实现。 除了重映射之外的所有操作都将防止任何其他注册表对象取代现有 id，以防相关条目被添加回游戏中。
 
-[ResourceLocation]: ./resources.md#resourcelocation
-[registration]: #methods-for-registering
+[ResourceLocation]: ./resources.md#资源位置resourcelocation
+[registration]: #注册的方法
 [event]: ./events.md
 [blockentity]: ../blockentities/index.md
