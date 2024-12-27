@@ -156,9 +156,9 @@ public class Example {
 [modsp]: #mod-specific-properties
 [uses]: https://docs.oracle.com/javase/specs/jls/se17/html/jls-7.html#jls-7.7.3
 [serviceload]: https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html#load(java.lang.Class)
-[array]: https://toml.io/en/v1.0.0#array-of-tables
+[array]: https://toml.io/cn/v1.0.0#表数组
 [mvnver]: ./versioning.md
-[multiline]: https://toml.io/en/v1.0.0#string
+[multiline]: https://toml.io/cn/v1.0.0#字符串
 [update]: ../misc/updatechecker.md
 [features]: #特性
 [sides]: ../concepts/sides.md#编写单端mod
