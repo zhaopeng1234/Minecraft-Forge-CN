@@ -100,9 +100,9 @@ com
 [config]: https://docs.minecraftforge.net/en/fg-6.x/configuration/runs/
 
 [modfiles]: ./modfiles.md
-[packaging]: ./structuring.md#packaging
+[packaging]: ./structuring.md#软件包管理
 [mvnver]: ./versioning.md
-[client]: ../concepts/sides.md#writing-one-sided-mods
+[client]: ../concepts/sides.md#编写单端mod
 
 [proxy]: https://jingyan.baidu.com/article/75ab0bcbbcac3197874db240.html
 [mirror]: https://www.cnblogs.com/amadeuslee/p/17953008
