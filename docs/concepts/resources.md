@@ -12,7 +12,7 @@ Minecraft有两个主要资源系统：一个在逻辑客户端上，用于视�
 
 资源位置resourcelocation
 ------------------
-Minecraft使用`ResourceLocation`来标识资源。`ResourceLocation`包含两个部分：命名空间和路径。它通常指向`assets/<namespace>/<ctx>/<path>`中的资源，其中`ctx`是一个特定于上下文的路径片段，它取决于`ResourceLocation`是如何被使用的。当`ResourceLocation`被写入/读取为来自字符串时，它被视为`<namespace>:<path>`。如果命名空间和冒号被省略，那么当字符串被读入`ResourceLocation`时命名空间将始终默认为`"minecraft"`。mod应该将其资源放入与其mod id同名的命名空间（例如，id为`examplemod`的mod应该将其资源分别放在`assets/examplemod`和`data/examplemod`中，`ResourceLocation`指向这些文件时类似`examplemod:<path>`）。这不是必需的，在某些情况下，可能需要使用不同的（甚至多个）命名空间。`ResourceLocation`也在资源系统之外使用，因为它们碰巧是唯一标识对象的好方法（例如[注册表][registries]）。
+Minecraft使用`ResourceLocation`来标识资源。`ResourceLocation`包含两个部分：命名空间和路径。它通常指向`assets/<namespace>/<ctx>/<path>`中的资源，其中`ctx`是一个特定于上下文的路径片段，它取决于`ResourceLocation`是如何被使用的。当以字符串形式写入/读取`ResourceLocation`时，它被视为`<namespace>:<path>`。如果省略命名空间和冒号，那么当字符串被读入`ResourceLocation`时，命名空间将始终默认为 `minecraft`。。mod应该将其资源放入与其mod id同名的命名空间（例如，id为`examplemod`的mod应该将其资源分别放在`assets/examplemod`和`data/examplemod`中，`ResourceLocation`指向这些文件时类似`examplemod:<path>`）。这不是必需的，在某些情况下，可能需要使用不同的（甚至多个）命名空间。`ResourceLocation`也在资源系统之外使用，因为它们碰巧是唯一标识对象的好方法（例如[注册表][registries]）。
 
 
 [respack]: ../resources/client/index.md
