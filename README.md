@@ -18,7 +18,7 @@
     - [注册表](/docs/concepts/registries.md)
     - [端](/docs/concepts/sides.md)
     - [事件](/docs/concepts/events.md)
-    - [Mod Lifecycle](/docs/concepts/lifecycle.md)
+    - [Mod生命周期](/docs/concepts/lifecycle.md)
     - [Resources](/docs/concepts/resources.md)
     - [Internationalization](/docs/concepts/internationalization.md)
 * ### Blocks:
