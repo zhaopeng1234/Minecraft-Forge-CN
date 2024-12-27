@@ -91,7 +91,7 @@ com
 3. 如果您通过运行配置或 `gradlew runServer` 第一次运行专用服务器，服务器将立即关闭。 您需要通过编辑运行目录中的`eula.txt`文件来接受 Minecraft EULA。 接受后，服务器将加载，然后可以通过直连 `localhost`访问服务器。
 
 !!! 注意
-    您应始终在专用服务器环境中测试您的 Mod。 这也包括[客户端专用mod][客户端]，因为它们在服务器上加载时不应执行任何操作。
+    您应始终在专用服务器环境中测试您的 Mod。 这也包括[客户端专用mod][client]，因为它们在服务器上加载时不应执行任何操作。
 
 [jdk]: https://adoptium.net/temurin/releases?version=17 "Eclipse Temurin 17 Prebuilt Binaries"
 [ForgeGradle]: https://docs.minecraftforge.net/en/fg-6.x
