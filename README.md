@@ -19,8 +19,8 @@
     - [端](/docs/concepts/sides.md)
     - [事件](/docs/concepts/events.md)
     - [Mod生命周期](/docs/concepts/lifecycle.md)
-    - [Resources](/docs/concepts/resources.md)
-    - [Internationalization](/docs/concepts/internationalization.md)
+    - [资源](/docs/concepts/resources.md)
+    - [国际化](/docs/concepts/internationalization.md)
 * ### Blocks:
     - [Introduction](/docs/blocks/index.md)
     - [Block States](/docs/blocks/states.md)
