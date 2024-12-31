@@ -22,7 +22,7 @@
     - [资源](/docs/concepts/resources.md)
     - [国际化](/docs/concepts/internationalization.md)
 * ### Blocks:
-    - [Introduction](/docs/blocks/index.md)
+    - [简介](/docs/blocks/index.md)
     - [Block States](/docs/blocks/states.md)
 * ### Items:
     - [Introduction](/docs/items/index.md)
