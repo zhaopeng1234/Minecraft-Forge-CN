@@ -1,49 +1,52 @@
-Blocks
+
+方块
 ======
 
-Blocks are, obviously, essential to the Minecraft world. They make up all of the terrain, structures, and machines. Chances are if you are interested in making a mod, then you will want to add some blocks. This page will guide you through the creation of blocks, and some of the things you can do with them.
+显然，方块对Minecraft世界至关重要。它们构成了所有的地形、结构和机器。如果您对制作mod感兴趣，那么您可能会想要添加一些方块。本页将指导您创建方块，以及您可以使用它们做的一些事情。
 
-Creating a Block
+创建方块
 ----------------
 
-### Basic Blocks
+### 基本方块
 
-For simple blocks, which need no special functionality (think cobblestone, wooden planks, etc.), a custom class is not necessary. You can create a block by instantiating the `Block` class with a `BlockBehaviour$Properties` object. This `BlockBehaviour$Properties` object can be made using `BlockBehaviour$Properties#of`, and it can be customized by calling its methods. For instance:
+对于不需要特殊功能的简单块（比如鹅卵石、木板等），不需要自定义类。您可以通过使用“BlockBehaviour\$Properties”对象调用“Block”类的初始化方法来创建块。Properties对象可以通过调用“BlockBehaviour\$Properties#of”方法制作，也可以调用它的方法来进行方块的自定义。例如：
 
-- `strength` - The hardness controls the time it takes to break the block. It is an arbitrary value. For reference, stone has a hardness of 1.5, and dirt 0.5. If the block should be unbreakable a hardness of -1.0 should be used, see the definition of `Blocks#BEDROCK` as an example. The resistance controls the explosion resistance of the block. For reference, stone has a resistance of 6.0, and dirt 0.5.
-- `sound` - Controls the sound the block makes when it is punched, broken, or placed. Requires a `SoundType` argument, see the [sounds] page for more details.
-- `lightLevel` - Controls the light emission of the block. Takes a function with a `BlockState` parameter that returns a value from zero to fifteen.
-- `friction` - Controls how slippery the block is. For reference, ice has a slipperiness of 0.98.
+- `strength` - 第一个参数为方块的硬度，控制打破块所需的时间。这可以是任意值。作为参考，石头的硬度为1.5，泥土为0.5。如果块应该是坚不可摧的，应该使用-1.0的硬度，请参阅“Blocks#BEDROCK”的定义作为示例。第二个参数为抗性，控制块的防爆性。作为参考，石头的抗性为6.0，泥土为0.5。
+- `sound` - 控制块在被击打、破碎或放置时发出的声音。需要`SoundType`参数，请参阅[声音][sounds]页面了解更多详细信息。
+- `lightLevel` - 控制块的亮度。参数为使用`BlockState`参数的函数，该函数返回从零到十五的值。
+- `friction` - 控制块的滑度。作为参考，冰的滑度为0.98。
 
-All these methods are *chainable* which means you can call them in series. See the `Blocks` class for examples of this.
+所有这些方法都是*可串联的*，这意味着您可以串联调用它们。有关此示例，请参阅`Blocks`类。
 
-!!! note
-    Blocks have no setter for their `CreativeModeTab`. This is handled by the [`BuildCreativeModeTabContentsEvent`][creativetabs] if the block has an associated item (e.g. `BlockItem`). Furthermore, there is no setter for translation key of the block as it is generated from the registry name via `Block#getDescriptionId`.
+!!! 注意
+    方块的`CreativeModeTab`没有设置器。如果方块有关联的物品（例如`BlockItem`），则由[`BuildCreativeModeTabContentsEvent`][creativetabs]处理。此外，方块没有翻译键的设置器，因为它是通过`Block#getDescriptionId`从注册表名称生成的。
 
-### Advanced Blocks
 
-Of course, the above only allows for extremely basic blocks. If you want to add functionality, like player interaction, a custom class is required. However, the `Block` class has many methods and unfortunately not every single one can be documented here. See the rest of the pages in this section for things you can do with blocks.
+### 高级方块
 
-Registering a Block
+当然，上面只允许非常基本的块。如果你想添加功能，比如玩家交互，需要一个自定义类。`Block`类有很多方法，不幸的是，不是每一个都可以在这里记录下来。有关你可以用方块做的事情，请参阅本节的其余页面。
+
+
+注册方块
 -------------------
+方块必须被[注册][registering]才能运行。
 
-Blocks must be [registered][registering] to function.
+!!! 重要
+  世界中的方块和库存中的“方块”是非常不同的东西。关卡中的方块由`BlockState`表示，其行为由`Block`的实例定义。同时，库存中的物品是`ItemStack`，由`Item`控制。作为`Block`和`Item`之间的桥梁，就有了`BlockItem`类。`BlockItem`是`Item`的子类，它有一个字段`block`保存对它所代表的`Block`的引用。`BlockItem`将“方块”作为物品的一些行为，例如右键单击如何放置块。可以有一个`Block`而没有`BlockItem`。（例如`minecraft:water`存在一个方块，但不是一个物品。因此不可能将其作为一个整体保存在库存中。）
 
-!!! important
-    A block in the level and a "block" in an inventory are very different things. A block in the level is represented by an `BlockState`, and its behavior defined by an instance of `Block`. Meanwhile, an item in an inventory is an `ItemStack`, controlled by an `Item`. As a bridge between the different worlds of `Block` and `Item`, there exists the class `BlockItem`. `BlockItem` is a subclass of `Item` that has a field `block` that holds a reference to the `Block` it represents. `BlockItem` defines some of the behavior of a "block" as an item, like how a right click places the block. It's possible to have a `Block` without an `BlockItem`. (E.g. `minecraft:water` exists a block, but not an item. It is therefore impossible to hold it in an inventory as one.)
+当一个方块被注册时，*只有* 方块本身被注册。该方块不会自动具有`BlockItem`。要为方块创建一个基本`BlockItem`，应该将`BlockItem`的注册表名称设置为其`Block`的注册表名称。也可以使用`BlockItem`的自定义子类。一旦为方块注册了`BlockItem`，就可使用`Block#asItem`检索它。如果`Block`没有对应的`BlockItem`，此方法将返回`Items#AIR`，因此如果您不确定`Block`是否有`BlockItem`，请检查`Block#asItem`是否返回`Items#AIR`。
 
-    When a block is registered, *only* a block is registered. The block does not automatically have an `BlockItem`. To create a basic `BlockItem` for a block, one should set the registry name of the `BlockItem` to that of its `Block`. Custom subclasses of `BlockItem` may be used as well. Once an `BlockItem` has been registered for a block, `Block#asItem` can be used to retrieve it. `Block#asItem` will return `Items#AIR` if there is no `BlockItem` for the `Block`, so if you are not certain that there is an `BlockItem` for the `Block` you are using, check for if `Block#asItem` returns `Items#AIR`.
+#### 可选注册方块
 
-#### Optionally Registering Blocks
+过去有几个mod允许用户在配置文件中禁用方块/物品。但是，你不应该这样做。可以注册的块数量没有限制，所以在你的mod中注册所有块！如果你想通过配置文件禁用方块，你应该禁用制作配方。如果你想在创意选项卡中禁用方块，在构建[`BuildCreativeModeTabContentsEvent`][creativetabs]中的内容时使用`FeatureFlag`。
 
-In the past there have been several mods that have allowed users to disable blocks/items in a configuration file. However, you shouldn't do this. There is no limit on the amount of blocks that can be register, so register all blocks in your mod! If you want a block to be disabled through a configuration file, you should disable the crafting recipe. If you would like to disable the block in the creative tab, use a `FeatureFlag` when building the contents within [`BuildCreativeModeTabContentsEvent`][creativetabs].
 
-Further Reading
+进一步阅读
 ---------------
 
-For information about block properties, such as those used for vanilla blocks like fences, walls, and many more, see the section on [blockstates].
+有关方块属性的信息，例如用于栅栏、墙壁等原版的方块属性，请参阅[方块状态][blockstates]部分。
 
 [sounds]: ../gameeffects/sounds.md
-[creativetabs]: ../items/index.md#creative-tabs
-[registering]: ../concepts/registries.md#methods-for-registering
+[creativetabs]: ../items/index.md#创造模式的标签页
+[registering]: ../concepts/registries.md#注册的方法
 [blockstates]: states.md
