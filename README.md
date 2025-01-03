@@ -23,7 +23,7 @@
     - [国际化](/docs/concepts/internationalization.md)
 * ### Blocks:
     - [简介](/docs/blocks/index.md)
-    - [Block States](/docs/blocks/states.md)
+    - [方块状态](/docs/blocks/states.md)
 * ### Items:
     - [Introduction](/docs/items/index.md)
     - [BlockEntityWithoutLevelRenderer](/docs/items/bewlr.md)
