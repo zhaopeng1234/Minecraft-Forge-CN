@@ -7,13 +7,14 @@ Forge 入门
 准备环境
 -------------
 
-* 安装`JDK17`和**64位**JVM。Forge官方支持并推荐[Eclipse Temurin][jdk]。
+* 安装`JDK21`和**64位**JVM。Forge官方支持并推荐[Eclipse Temurin][jdk]。（译者注：官方文档中写的JDK版本是17，但是如果你是为MC 1.20.5+ 开发mod,需要将jdk版本设置为21）
 
     !!! 警告
     确保您使用的是 64 位 JVM。检查方法是在终端中运行`java -version`。使用 [ForgeGradle] 时，使用 32 位 JVM 会导致一些问题。
+    
 
 * 你熟悉的集成开发环境 (IDE).
-    * 建议使用集成了 Gradle 的集成开发环境（译者注：本人后续的示例均为在IDEA 2023.1版本下操作）。
+    * 建议使用集成了 Gradle 的集成开发环境（译者注：本人后续的示例均为在IDEA 2024.3.1.1版本,gradle8.1.1下操作,较低的idea版本可能对高版本的java支持有问题）。
 
 从零开始制作Mod
 --------------------
@@ -43,7 +44,14 @@ Forge 入门
 自定义您的Mod信息
 --------------------------------
 
-编辑`build.gradle`文件以自定义构建 MOD 的方式（例如文件名、工件版本等）。
+编辑`build.gradle`文件以自定义构建 MOD 的方式（例如文件名、工件版本等）。中文开发者在使用jdk18以上版本时，会遇到控制台输出中文显示为乱码的情况，可以在build.gradle中加入以下代码解决：
+
+```
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += '-Dstdout.encoding=UTF-8'
+    jvmArgs += '-Dstderr.encoding=UTF-8'
+}
+```
 
 !!! 重要
 请**不要**编辑`settings.gradle`文件，除非您明确知道自己在做什么。 该文件指定了 [ForgeGradle] 使用的版本库。
@@ -78,7 +86,6 @@ com
 
 将gradle.properties中的`mod_version`属性设置为 MOD 的当前版本。 我们建议使用 [Maven 版本控制][mvnver]。
 
-
 #### 其他配置
 
 其他配置可参见 [ForgeGradle] 文档。
@@ -93,7 +100,7 @@ com
 !!! 注意
     您应始终在专用服务器环境中测试您的 Mod。 这也包括[客户端专用mod][client]，因为它们在服务器上加载时不应执行任何操作。
 
-[jdk]: https://adoptium.net/temurin/releases?version=17 "Eclipse Temurin 17 Prebuilt Binaries"
+[jdk]: https://adoptium.net/temurin/releases?version=21 "Eclipse Temurin 17 Prebuilt Binaries"
 [ForgeGradle]: https://docs.minecraftforge.net/en/fg-6.x
 
 [files]: https://files.minecraftforge.net "Forge Files distribution site"
