@@ -1,61 +1,65 @@
-Items
+
+物品
 =====
 
-Along with blocks, items are a key component of most mods. While blocks make up the level around you, items exist within inventories.
+与方块一起，项目是大多数mod的关键组成部分。方块构成了你周围的关卡，项目存在于库存中。
 
-Creating an Item
+创建物品
 ----------------
 
-### Basic Items
+### 基础物品
 
-Basic items that need no special functionality (think sticks or sugar) do not need custom classes. You can create an item by instantiating the `Item` class with an `Item$Properties` object. This `Item$Properties` object can be made via the constructor and customized by calling its methods. For instance:
+不需要特殊功能的基本物品（比如木棍或糖）不需要自定义类。您可以通过使用`Item$Properties`对象调用`Item`类的构造函数来创建物品。这`Item$Properties`对象可以通过其构造函数创建，并通过调用其方法进行自定义。例如：
+
 
 |      Method        |                  Description                  |
 |:------------------:|:----------------------------------------------|
-| `requiredFeatures` | Sets the required `FeatureFlag`s needed to see this item in the `CreativeModeTab` it is added to. |
-| `durability`       | Sets the maximum damage value for this item. If it is over `0`, two item properties "damaged" and "damage" are added. |
-| `stacksTo`         | Sets the maximum stack size. You cannot have an item that is both damageable and stackable. |
-| `setNoRepair`      | Makes this item impossible to repair, even if it is damageable. |
-| `craftRemainder`   | Sets this item's container item, the way that lava buckets give you back an empty bucket when they are used. |
+| `requiredFeatures` | 设置让此物品在`创造模式选项卡`中能被看见所需的`FeatureFlag`。 |
+| `durability`       | 设置此物品的最大耐久值。如果超过`0`，则添加两个物品属性“已损坏`damaged`”和“耐久`damage`”。 |
+| `stacksTo`         | 设置最大堆叠大小。您不能创建同时拥有可损坏和可堆叠属性的物品。 |
+| `setNoRepair`      | 使该物品无法修复，即使它是可损坏的。 |
+| `craftRemainder`   | 设置此物品的容器物品，例如熔岩桶使用后给你一个空桶的方式。 |
 
-The above methods are chainable, meaning they `return this` to facilitate calling them in series.
+上面的方法是可链接的，这意味着它们返回`this`以方便串联调用它们。
 
-### Advanced Items
+### 高级物品
 
-Setting the properties of an item as above only works for simple items. If you want more complicated items, you should subclass `Item` and override its methods.
+如上设置物品的属性仅适用于简单物品，如果需要更复杂的物品，则应子类化`物品`并重载其方法。
 
-## Creative Tabs
+## 创造模式选项卡
 
-An item can be added to a `CreativeModeTab` via `BuildCreativeModeTabContentsEvent` on the [mod event bus][modbus]. An item(s) can be added without any additional configurations via `#accept`.
+可以通过[mod事件总线][modbus]上的`BuildCreativeModeTabContentsEvent`将物品添加到`CreativeModeTab`。可以通过`#accept`添加物品而无需任何额外配置。
+
 
 ```java
-// Registered on the MOD event bus
-// Assume we have RegistryObject<Item> and RegistryObject<Block> called ITEM and BLOCK
+// 在MOD事件总线上注册
+// 假设我们有名为ITEM的RegistryObject<Item> 和名为BLOCK的RegistryObject<Block>
 @SubscribeEvent
 public void buildContents(BuildCreativeModeTabContentsEvent event) {
-  // Add to ingredients tab
+  // 添加到原料选项卡
   if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
     event.accept(ITEM);
-    event.accept(BLOCK); // Takes in an ItemLike, assumes block has registered item
+    event.accept(BLOCK); // 接收物品，假设方块已注册物品
   }
 }
 ```
 
-You can also enable or disable items being added through a `FeatureFlag` in the `FeatureFlagSet` or a boolean determining whether the player has permissions to see operator creative tabs.
+您还可以通过`FeatureFlagSet`中的`FeatureFlag`或决定玩家是否有权限查看创造模式选项卡的布尔值来启用或禁用添加项目。
 
-### Custom Creative Tabs
 
-A custom `CreativeModeTab` must be [registered][registering]. The builder can be created via `CreativeModeTab#builder`. The tab can set the title, icon, default items, and a number of other properties. In addition, Forge provides additional methods to customize the tab's image, label and slot colors, where the tab should be ordered, etc.
+### 自定义创造模式选项卡
+
+自定义的`CreativeModeTab`必须[注册][registering]。构建器可以通过`CreativeModeTab#builder`创建。选项卡可以设置标题、图标、默认物品和许多其他属性。此外，Forge提供了额外的方法来自定义选项卡的图像、标签和插槽颜色，选项卡应该排在什么顺序等。
 
 ```java
-// Assume we have a DeferredRegister<CreativeModeTab> called REGISTRAR
-// Assume we have RegistryObject<Item> and RegistryObject<Block> called ITEM and BLOCK
+// 假设我们有一个名为REGISTRAR的DeferredRegister<CreativeModeTab>
+// 假设我们有名为ITEM的RegistryObject<Item> 和名为BLOCK的RegistryObject<Block>
 public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = REGISTRAR.register("example", () -> CreativeModeTab.builder()
-  // Set name of tab to display
+  // 设置要显示的选项卡名称
   .title(Component.translatable("item_group." + MOD_ID + ".example"))
-  // Set icon of creative tab
+  // 设置创造模式选项卡的图标
   .icon(() -> new ItemStack(ITEM.get()))
-  // Add default items to tab
+  // 向选项卡添加物品
   .displayItems((params, output) -> {
     output.accept(ITEM.get());
     output.accept(BLOCK.get());
@@ -64,10 +68,9 @@ public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = REGISTRAR.regi
 );
 ```
 
-Registering an Item
+注册物品
 -------------------
+物品必须[注册][注册]才能生效。
 
-Items must be [registered][registering] to function.
-
-[modbus]: ../concepts/events.md#mod-event-bus
-[registering]: ../concepts/registries.md#methods-for-registering
+[modbus]: ../concepts/events.md#Mod事件总线
+[registering]: ../concepts/registries.md#注册的方法
