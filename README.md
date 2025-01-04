@@ -21,11 +21,11 @@
     - [Mod生命周期](/docs/concepts/lifecycle.md)
     - [资源](/docs/concepts/resources.md)
     - [国际化](/docs/concepts/internationalization.md)
-* ### Blocks:
+* ### 方块:
     - [简介](/docs/blocks/index.md)
     - [方块状态](/docs/blocks/states.md)
-* ### Items:
-    - [Introduction](/docs/items/index.md)
+* ### 物品:
+    - [简介](/docs/items/index.md)
     - [BlockEntityWithoutLevelRenderer](/docs/items/bewlr.md)
 * ### Networking:
     - [Introduction](/docs/networking/index.md)
