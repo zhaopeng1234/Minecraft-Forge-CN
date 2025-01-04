@@ -26,7 +26,7 @@
     - [方块状态](/docs/blocks/states.md)
 * ### 物品:
     - [简介](/docs/items/index.md)
-    - [BlockEntityWithoutLevelRenderer](/docs/items/bewlr.md)
+    - [BEWLR(BlockEntityWithoutLevelRenderer)](/docs/items/bewlr.md)
 * ### Networking:
     - [Introduction](/docs/networking/index.md)
     - [SimpleImpl](/docs/networking/simpleimpl.md)
