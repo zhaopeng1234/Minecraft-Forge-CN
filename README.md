@@ -27,8 +27,8 @@
 * ### 物品:
     - [简介](/docs/items/index.md)
     - [BEWLR(BlockEntityWithoutLevelRenderer)](/docs/items/bewlr.md)
-* ### Networking:
-    - [Introduction](/docs/networking/index.md)
+* ### 网络连接:
+    - [介绍](/docs/networking/index.md)
     - [SimpleImpl](/docs/networking/simpleimpl.md)
 * ### Block Entities:
     - [Introduction](/docs/blockentities/index.md)
