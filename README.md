@@ -30,8 +30,8 @@
 * ### 网络连接:
     - [介绍](/docs/networking/index.md)
     - [SimpleImpl](/docs/networking/simpleimpl.md)
-* ### Block Entities:
-    - [Introduction](/docs/blockentities/index.md)
+* ### 方块实体(Block Entities):
+    - [介绍](/docs/blockentities/index.md)
     - [BlockEntityRenderer](/docs/blockentities/ber.md)
 * ### Game Effects:
     - [Particles](/docs/gameeffects/particles.md)
