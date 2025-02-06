@@ -133,7 +133,7 @@ Level#sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, i
     进行安全检查很重要，当消息到达玩家时，`BlockEntity` 可能已经被销毁/替换！你还应该检查区块是否已加载（`Level#hasChunkAt(BlockPos)`）。
 
 [registration]:../concepts/registries.md#methods-for-registering
-[storing-data]: #storing-data-within-your-blockentity
+[storing-data]: #在“方块实体”中存储数据
 [menu]:../gui/menus.md
 [networking]:../networking/index.md
 [simple_impl]:../networking/simpleimpl.md
