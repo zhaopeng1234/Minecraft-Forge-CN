@@ -1,9 +1,9 @@
-Part Visibility
-===============
+## 部件可见性
 
-Adding the `visibility` entry at the top level of a model JSON allows control over the visibility of different parts of the model to decide whether they should be baked into the final [`BakedModel`][bakedmodel]. The definition of a "part" is dependent on the model loader loading this model and custom model loaders are free to ignore this entry completely. Out of the model loaders provided by Forge only the [composite model loader][composite] and the [OBJ model loader][obj] make use of this functionality. The visibility entries are specified as `"part name": boolean` entries.
+在模型 JSON 文件的顶级添加 `visibility` 条目，可以控制模型不同部分的可见性，从而决定它们是否应该被烘焙到最终的 [`BakedModel`][bakedmodel] 中。“部件” 的定义取决于加载此模型的模型加载器，自定义模型加载器可以完全忽略此条目。在 Forge 提供的模型加载器中，只有 [复合模型加载器][composite] 和 [OBJ 模型加载器][obj] 使用了此功能。可见性条目以 `"部件名称": 布尔值` 的形式指定。
 
-Example of a composite model with two parts, the second of which will not be baked into the final model, and two child models overriding this visibility to have only the first part and both parts visible respectively:
+以下是一个复合模型的示例，该模型有两个部件，其中第二个部件不会被烘焙到最终模型中，还有两个子模型覆盖了此可见性设置，分别使第一个部件可见和两个部件都可见：
+
 ```js
 // mycompositemodel.json
 {
@@ -39,13 +39,13 @@ Example of a composite model with two parts, the second of which will not be bak
 }
 ```
 
-The visibility of a given part is determined by checking whether the model specifies a visibility for this part and, if not present, recursively checking the model's parent until either an entry is found or there is no further parent to check, in which case it defaults to true.
+给定部件的可见性通过以下方式确定：首先检查模型是否为此部件指定了可见性，如果没有，则递归检查模型的父模型，直到找到相关条目或没有更多父模型可检查，在没有找到条目的情况下，默认值为 `true`。
 
-This allows setups like the following where multiple models use different parts of a single composite model:
+这允许进行如下设置：多个模型使用单个复合模型的不同部件。
 
-1. A composite model specifies multiple components
-2. Multiple models specify this composite model as their parent
-3. These child models individually specify different visibilities for the parts
+1. 一个复合模型指定多个组件。
+2. 多个模型将此复合模型指定为其父模型。
+3. 这些子模型分别为部件指定不同的可见性。
 
 [bakedmodel]: ../modelloaders/bakedmodel.md
 [composite]: ../modelloaders/index.md/#composite-models
