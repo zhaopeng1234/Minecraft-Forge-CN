@@ -1,13 +1,11 @@
-Root Transforms
-===============
+## 根变换
+在模型 JSON 文件的顶级添加 `transform` 条目，会向加载器表明，对于方块模型，应在应用 [方块状态] 文件中的旋转之前对所有几何图形应用变换；对于物品模型，则应在应用 [显示变换][displaytransform] 之前应用该变换。在 `IUnbakedGeometry#bake()` 方法中，可以通过 `IGeometryBakingContext#getRootTransform()` 获取该变换。
 
-Adding the `transform` entry at the top level of a model JSON suggests to the loader that a transformation should be applied to all geometry right before the rotations in the [blockstate] file in the case of a block model, and before the [display transforms][displaytransform] in the case of an item model. The transformation is available through `IGeometryBakingContext#getRootTransform()` in `IUnbakedGeometry#bake()`.
+自定义模型加载器可以完全忽略此字段。
 
-Custom model loaders may ignore this field entirely.
+根变换可以用两种格式指定：
 
-The root transforms can be specified in two formats:
-
-1. A JSON object containing a singular `matrix` entry containing a raw transformation matrix in the form of a nested JSON array with the last row omitted (3*4 matrix, row major order). The matrix is the composition of the translation, left rotation, scale, right rotation and the transformation origin in that order. Example demonstrating the structure:
+1. 一个 JSON 对象，包含一个单独的 `matrix` 条目，该条目包含一个原始变换矩阵，以嵌套 JSON 数组的形式呈现，省略最后一行（3 * 4 矩阵，按行优先顺序）。该矩阵是平移、左旋转、缩放、右旋转和变换原点按此顺序组合的结果。以下示例展示了其结构：
     ```js
     "transform": {
         "matrix": [
@@ -17,18 +15,16 @@ The root transforms can be specified in two formats:
         ]
     }
     ```
-2. A JSON object containing any combination of the following optional entries:
-    * `origin`: origin point used for the rotations and scaling
-    * `translation`: relative translation
-    * `rotation` or `left_rotation`: rotation around the translated origin to be applied before scaling
-    * `scale`: scale relative to the translated origin
-    * `right_rotation` or `post_rotation`: rotation around the translated origin to be applied after scaling
+2. 一个 JSON 对象，包含以下可选条目的任意组合：
+    - `origin`：用于旋转和缩放的原点
+    - `translation`：相对平移
+    - `rotation` 或 `left_rotation`：在缩放之前围绕平移后的原点应用的旋转
+    - `scale`：相对于平移后原点的缩放
+    - `right_rotation` 或 `post_rotation`：在缩放之后围绕平移后原点应用的旋转
 
-Element-wise specification
--------------------------
-
-If the transformation is specified as a combination of the entries mentioned in option 4, these entries will be applied in the order of `translation`, `left_rotation`, `scale`, `right_rotation`.  
-The transformation is moved to the specified origin as a last step.
+### 逐元素指定
+如果变换是通过选项 4 中提到的条目组合指定的，这些条目将按 `translation`（平移）、`left_rotation`（左旋转）、`scale`（缩放）、`right_rotation`（右旋转）的顺序应用。
+最后一步是将变换移动到指定的原点。
 
 ```js
 {
@@ -41,36 +37,30 @@ The transformation is moved to the specified origin as a last step.
 }
 ```
 
-The elements are expected to be defined as follows:
+这些元素的定义预期如下：
 
-### Origin
+#### 原点
+原点可以指定为表示三维向量的 3 个浮点值数组：`[ x, y, z ]`，也可以指定为以下三个默认值之一：
+- `"corner"`（0, 0, 0）
+- `"center"`（0.5, 0.5, 0.5）
+- `"opposing-corner"`（1, 1, 1）
 
-The origin can be specified either as an array of 3 floating point values representing a three-dimensional vector: `[ x, y, z ]` or as one of the three default values:
+如果未指定原点，则默认为 `"opposing-corner"`。
 
-* `"corner"` (0, 0, 0)
-* `"center"` (.5, .5, .5)
-* `"opposing-corner"` (1, 1, 1)
+#### 平移
+平移必须指定为表示三维向量的 3 个浮点值数组：`[ x, y, z ]`，如果未指定，则默认为 (0, 0, 0)。
 
-If the origin is not specified, it defaults to `"opposing-corner"`.
+#### 左旋转和右旋转
+旋转可以通过以下四种方式之一指定：
+- 单个 JSON 对象，包含单个轴到旋转度数的映射：`{ "x": 90 }`
+- 任意数量上述格式的 JSON 对象数组（按指定顺序应用）：`[ { "x": 90 }, { "y": 45 }, { "x": -22.5 } ]`
+- 3 个浮点值的数组，指定绕每个轴的旋转度数：`[ 90, 180, 45 ]`
+- 4 个浮点值的数组，直接指定四元数：`[ 0.38268346, 0, 0, 0.9238795 ]`（示例表示绕 X 轴旋转 45 度）
 
-### Translation
+如果未指定相应的旋转，则默认不进行旋转。
 
-The translation must be specified as an array of 3 floating point values representing a three-dimensional vector: `[ x, y, z ]` and defaults to (0, 0, 0) if not present.
-
-### Left and Right Rotation
-
-The rotations can be specified in any one of the following four ways:
-
-* Single JSON object with a single axis => rotation degree mapping: `{ "x": 90 }`
-* Array of an arbitrary amount of JSON objects with the above format (applied in the order they are specified in): `[ { "x": 90 }, { "y": 45 }, { "x": -22.5 } ]`
-* Array of 3 floating point values specifying the rotation in degrees around each axis: `[ 90, 180, 45 ]`
-* Array of 4 floating point values specifying a quaternion directly: `[ 0.38268346, 0, 0, 0.9238795 ]` (example equals 45 degrees around the X axis)
-
-If the respective rotation is not specified, it will default to no rotation.
-
-### Scale
-
-The scale must be specified as an array of 3 floating point values representing a three-dimensional vector: `[ x, y, z ]` and defaults to (1, 1, 1) if not present.
+#### 缩放
+缩放必须指定为表示三维向量的 3 个浮点值数组：`[ x, y, z ]`，如果未指定，则默认为 (1, 1, 1)。
 
 [blockstate]: https://minecraft.wiki/w/Tutorials/Models#Block_states
 [displaytransform]: ../modelloaders/transform.md
