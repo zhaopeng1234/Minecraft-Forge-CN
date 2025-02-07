@@ -33,22 +33,22 @@
 * ### 方块实体(Block Entities):
     - [介绍](/docs/blockentities/index.md)
     - [BlockEntityRenderer](/docs/blockentities/ber.md)
-* ### Game Effects:
-    - [Particles](/docs/gameeffects/particles.md)
-    - [Sounds](/docs/gameeffects/sounds.md)
-* ### Data Storage:
-    - [Capabilities](/docs/datastorage/capabilities.md)
-    - [Saved Data](/docs/datastorage/saveddata.md)
-    - [Codecs](/docs/datastorage/codecs.md)
-* ### Graphical User Interfaces:
-    - [Menus](/docs/gui/menus.md)
-    - [Screens](/docs/gui/screens.md)
+* ### 游戏效果:
+    - [粒子](/docs/gameeffects/particles.md)
+    - [声音](/docs/gameeffects/sounds.md)
+* ### 数据保存:
+    - [能力](/docs/datastorage/capabilities.md)
+    - [保存的数据](/docs/datastorage/saveddata.md)
+    - [编解码器](/docs/datastorage/codecs.md)
+* ### 图形化用户界面(GUI):
+    - [菜单](/docs/gui/menus.md)
+    - [屏幕](/docs/gui/screens.md)
 * ### Rendering:
     * #### Model Extensions:
-      - [Introduction](/docs/rendering/modelextensions/index.md)
-      - [Root Transforms](/docs/rendering/modelextensions/transforms.md)
-      - [Render Types](/docs/rendering/modelextensions/rendertypes.md)
-      - [Part Visibility](/docs/rendering/modelextensions/visibility.md)
+      - [~~介绍(缺失)~~](/docs/rendering/modelextensions/index.md)
+      - [根变换](/docs/rendering/modelextensions/transforms.md)
+      - [渲染类型](/docs/rendering/modelextensions/rendertypes.md)
+      - [部件可见性](/docs/rendering/modelextensions/visibility.md)
       - [Face Data](/docs/rendering/modelextensions/facedata.md)
     * #### Model Loaders:
       - [Introduction](/docs/rendering/modelloaders/index.md)
