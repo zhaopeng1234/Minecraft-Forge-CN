@@ -1,125 +1,124 @@
-Particles
+粒子
 =========
 
-Particles are an effect within the game used as polish to better improve immersion. Their usefulness also requires great caution because of their methods of creation and reference.
+粒子是游戏中的一种特效，用于提升沉浸感。由于其创建和引用方式的特殊性，在使用时需要格外谨慎。
 
-Creating a Particle
+创建粒子
 -------------------
 
-Particles are broken up between its [**client only**][sides] implementation to display the particle and its common implementation to reference the particle or sync data from the server.
+粒子分为其 [**仅客户端**][sides] 的实现部分，用于显示粒子，以及其通用实现部分，用于引用粒子或从服务器同步数据。
 
-| Class            | Side   | Description |
+| 类            | 所属端   | 描述 |
 | :---             | :---:  |     :---    |
-| ParticleType     | BOTH   | The registry object of a particle's type definition used to reference the particle on either side |
-| ParticleOptions    | BOTH   | A data holder used to sync information from the network or a command to the associated client(s) |
-| ParticleProvider | CLIENT | A factory registered by the `ParticleType` used to construct a `Particle` from the associated `ParticleOptions`.
-| Particle         | CLIENT | The renderable logic to display on the associated client(s) |
+| ParticleType     | 两端   | 粒子类型定义的注册对象，用于在两端引用粒子 |
+| ParticleOptions    | 两端   | 一种数据容器，用于从网络或命令向相关客户端同步信息 |
+| ParticleProvider | 客户端 | 由 `ParticleType` 注册的工厂，用于根据相关的 `ParticleOptions` 构造一个 `Particle`。
+| Particle         | 客户端 | 在相关客户端上显示的可渲染逻辑 |
 
 ### ParticleType
 
-A `ParticleType` is the registry object defining what a particular particle type is and provides an available reference to the specific particle on both sides. As such, every `ParticleType` must be [registered][registration].
+`ParticleType` 是一个注册对象，用于定义特定粒子类型，并在两端为特定粒子提供可用的引用。因此，每个 `ParticleType` 都必须[注册][registration]。
 
-Each `ParticleType` takes in two parameters: an `overrideLimiter` which determines whether the particle renders regardless of distance, and a `ParticleOptions$Deserializer` which is used to read the sent `ParticleOptions` on the client. As the base `ParticleType` is abstract, a single method needs to be implemented: `#codec`. This represents how to encode and decode the associated `ParticleOptions` of the type.
+每个 `ParticleType` 接受两个参数：一个 `overrideLimiter`，用于确定粒子是否无论距离远近都进行渲染；以及一个 `ParticleOptions$Deserializer`，用于在客户端读取发送的 `ParticleOptions`。由于基础的 `ParticleType` 是抽象类，需要实现一个方法：`#codec`。这表示如何对该类型相关的 `ParticleOptions` 进行编码和解码。
 
-!!! note
-    `ParticleType#codec` is only used within the biome codec for vanilla implementations.
+!!! 注意
+    `ParticleType#codec` 仅在原版实现的生物群系编解码器中使用。
 
-In most cases, there is no need to have any particle data sent to the client. For these instances, it is easier to create a new instance of `SimpleParticleType`: an implementation of `ParticleType` and `ParticleOptions` which does not send any custom data to the client besides the type. Most vanilla implementations use `SimpleParticleType` besides redstone dust for coloring and block/item dependent particles.
+在大多数情况下，无需向客户端发送任何粒子数据。对于这些情况，创建 `SimpleParticleType` 的新实例会更简单：`SimpleParticleType` 是 `ParticleType` 和 `ParticleOptions` 的一种实现，除了类型之外，不会向客户端发送任何自定义数据。除了用于着色的红石粉以及与方块/物品相关的粒子外，大多数原版实现都使用 `SimpleParticleType`。
 
-!!! important
-    A `ParticleType` is not needed to make a particle spawn if only referenced on the client. However, it is necessary to use any of the prebuilt logic within `ParticleEngine` or spawn a particle from the server.
+!!! 重要
+    如果仅在客户端引用粒子，创建粒子时不需要 `ParticleType`。但是，如果要使用 `ParticleEngine` 中的任何预构建逻辑，或者从服务器生成粒子，则必须使用 `ParticleType`。
 
 ### ParticleOptions
 
-An `ParticleOptions` represents the data that each particle takes in. It is also used to send data from particles spawned via the server. All particle spawning methods take in a `ParticleOptions` such that it knows the type of the particle and the data associated with spawning one.
+`ParticleOptions` 表示每个粒子所接受的数据。它还用于从服务器生成的粒子发送数据。所有粒子生成方法都接受一个 `ParticleOptions`，以便了解粒子的类型以及与生成粒子相关的数据。
 
-`ParticleOptions` is broken down into three methods:
+`ParticleOptions` 分为三个方法：
 
-| Method         | Description |
+| 方法         | 描述 |
 | :---           | :---        |
-| getType        | Gets the type definition of the particle, or the `ParticleType`
-| writeToNetwork | Writes the particle data to a buffer on the server to send to the client
-| writeToString  | Writes the particle data to a string
+| getType        | 获取粒子的类型定义，即 `ParticleType`
+| writeToNetwork | 将粒子数据写入服务器上的缓冲区，以便发送到客户端
+| writeToString  | 将粒子数据写入字符串
 
-These objects are either constructed on the fly as needed, or they are singletons as a result of being a `SimpleParticleType`.
+这些对象要么根据需要即时构造，要么由于是 `SimpleParticleType` 而作为单例存在。
 
 #### ParticleOptions$Deserializer
 
-To receive the `ParticleOptions` on the client, or to reference the data within a command, the particle data must be deserialized via `ParticleOptions$Deserializer`. Each method within `ParticleOptions$Deserializer` has a parity encoding method within `ParticleOptions`:
+为了在客户端接收 `ParticleOptions`，或者在命令中引用数据，必须通过 `ParticleOptions$Deserializer` 对粒子数据进行反序列化。`ParticleOptions$Deserializer` 中的每个方法在 `ParticleOptions` 中都有一个对应的编码方法：
 
-| Method      | ParticleOptions Encoder | Description |
+| 方法      | ParticleOptions 编码器 | 描述 |
 | :---        | :---:                 | :---        |
-| fromCommand | writeToString         | Decodes a particle data from a string, usually from a command. |
-| fromNetwork | writeToNetwork        | Decodes a particle data from a buffer on the client. |
+| fromCommand | writeToString         | 从字符串（通常来自命令）解码粒子数据。 |
+| fromNetwork | writeToNetwork        | 在客户端从缓冲区解码粒子数据。 |
 
-This object, when needing to send custom particle data, is passed into the constructor of the `ParticleType`.
+当需要发送自定义粒子数据时，这个对象会被传入 `ParticleType` 的构造函数中。
 
 ### Particle
 
-A `Particle` provides the rendering logic needed to draw said data onto the screen. To create any `Particle`, two methods must be implemented:
+`Particle` 提供了将数据绘制到屏幕上所需的渲染逻辑。要创建任何 `Particle`，必须实现两个方法：
 
-| Method        | Description |
+| 方法        | 描述 |
 | :---          | :---        |
-| render        | Renders the particle onto the screen. |
-| getRenderType | Gets the render type of the particle. |
+| render        | 将粒子渲染到屏幕上。 |
+| getRenderType | 获取粒子的渲染类型。 |
 
-A common subclass of `Particle` to render textures is `TextureSheetParticle`. While `#getRenderType` needs to be implemented, whatever the texture sprite is set will be rendered at the particle's location.
+`Particle` 的一个常见子类 `TextureSheetParticle` 用于渲染纹理。虽然需要实现 `#getRenderType`，但设置的任何纹理精灵都会在粒子的位置进行渲染。
 
 #### ParticleRenderType
 
-`ParticleRenderType` is a variation on `RenderType` which constructs the startup and teardown phase for every particle of that type and then renders them all at once via the `Tesselator`. There are six different render types a particle can be in.
+`ParticleRenderType` 是 `RenderType` 的一种变体，它为该类型的每个粒子构建启动和结束阶段，然后通过 `Tesselator` 一次性渲染所有粒子。粒子可以有六种不同的渲染类型。
 
-| Render Type                | Description |
+| 渲染类型                | 描述 |
 | :---                       | :---        |
-| TERRAIN_SHEET              | Renders a particle whose texture is located within the available blocks. |
-| PARTICLE_SHEET_OPAQUE      | Renders a particle whose texture is opaque and located within the available particles. |
-| PARTICLE_SHEET_TRANSLUCENT | Renders a particle whose texture is translucent and located within the available particles. |
-| PARTICLE_SHEET_LIT         | Same as `PARTICLE_SHEET_OPAQUE` except without using the particle shader. |
-| CUSTOM                     | Provides setup for blending and depth mask but provides no rendering functionality as that would be implemented within `Particle#render`. |
-| NO_RENDER                  | The particle will never render. |
+| TERRAIN_SHEET              | 渲染纹理位于可用方块中的粒子。 |
+| PARTICLE_SHEET_OPAQUE      | 渲染纹理不透明且位于可用粒子中的粒子。 |
+| PARTICLE_SHEET_TRANSLUCENT | 渲染纹理半透明且位于可用粒子中的粒子。 |
+| PARTICLE_SHEET_LIT         | 与 `PARTICLE_SHEET_OPAQUE` 相同，只是不使用粒子着色器。 |
+| CUSTOM                     | 提供混合和深度掩码的设置，但不提供渲染功能，因为这将在 `Particle#render` 中实现。 |
+| NO_RENDER                  | 粒子永远不会渲染。 |
 
-Implementing a custom render type will be left as an exercise to the reader.
+实现自定义渲染类型将留给读者作为练习。
 
 ### ParticleProvider
 
-Finally, a particle is usually created via an `ParticleProvider`. A factory has a single method `#createParticle` which is used to create a particle given the particle data, client level, position, and movement delta. Since a `Particle` is not beholden to any particular `ParticleType`, it can be reused in different factories as necessary.
+最后，粒子通常通过 `ParticleProvider` 创建。工厂有一个单一方法 `#createParticle`，用于根据粒子数据、客户端世界、位置和移动增量创建粒子。由于 `Particle` 不依赖于任何特定的 `ParticleType`，因此可以根据需要在不同的工厂中重复使用。
 
-An `ParticleProvider` must be registered by subscribing to the `RegisterParticleProvidersEvent` on the **mod event bus**. Within the event, the factory can be registered via `#registerSpecial` by supplying an instance of the factory to the method.
+必须通过在 **模组事件总线** 上订阅 `RegisterParticleProvidersEvent` 来注册 `ParticleProvider`。在事件中，可以通过将工厂实例提供给 `#registerSpecial` 方法来注册工厂。
 
-!!! important
-    `RegisterParticleProvidersEvent` should only be called on the client and thus sided off in some isolated client class, referenced by either `DistExecutor` or `@EventBusSubscriber`.
+!!! 重要
+    `RegisterParticleProvidersEvent` 应该仅在客户端调用，因此应在某个独立的客户端类中进行端区分，可通过 `DistExecutor` 或 `@EventBusSubscriber` 进行引用。
 
-#### ParticleDescription, SpriteSet, and SpriteParticleRegistration
+#### ParticleDescription、SpriteSet 和 SpriteParticleRegistration
 
-There are three particle render types that cannot use the above method of registration: `PARTICLE_SHEET_OPAQUE`, `PARTICLE_SHEET_TRANSLUCENT`, and `PARTICLE_SHEET_LIT`. This is because all three of these particle render types use a sprite set that is loaded by the `ParticleEngine` directly. As such, the textures supplied must be obtained and registered through a different method. This will assume your particle is a subtype of `TextureSheetParticle` as that is the only vanilla implementation for this logic.
+有三种粒子渲染类型不能使用上述注册方法：`PARTICLE_SHEET_OPAQUE`、`PARTICLE_SHEET_TRANSLUCENT` 和 `PARTICLE_SHEET_LIT`。这是因为这三种粒子渲染类型都使用由 `ParticleEngine` 直接加载的精灵集。因此，必须通过不同的方法获取和注册所提供的纹理。这里假设你的粒子是 `TextureSheetParticle` 的子类型，因为这是此逻辑的唯一原版实现。
 
-To add a texture to a particle, a new JSON file must be added to `assets/<modid>/particles`. This is known as the `ParticleDescription`. The name of this file will represent the registry name of the `ParticleType` the factory is being attached to. Each particle JSON is an object. The object stores a single key `textures` which holds an array of `ResourceLocation`s. Any `<modid>:<path>` texture represented here will point to a texture at `assets/<modid>/textures/particle/<path>.png`.
+要为粒子添加纹理，必须在 `assets/<modid>/particles` 中添加一个新的 JSON 文件。这就是所谓的 `ParticleDescription`。此文件的名称将代表工厂所附加的 `ParticleType` 的注册名称。每个粒子 JSON 是一个对象。该对象存储一个单一的键 `textures`，它包含一个 `ResourceLocation` 数组。这里表示的任何 `<modid>:<path>` 纹理都将指向 `assets/<modid>/textures/particle/<path>.png` 中的纹理。
 
 ```js
 {
   "textures": [
-    // Will point to a texture located in
-    // assets/mymod/textures/particle/particle_texture.png
+    // 将指向位于
+    // assets/mymod/textures/particle/particle_texture.png 的纹理
     "mymod:particle_texture",
-    // Textures should by ordered by drawing order
-    // e.g. particle_texture will render first, then particle_texture2
-    //      after some time
+    // 纹理应按绘制顺序排列
+    // 例如：particle_texture 首先渲染，然后过一段时间后渲染 particle_texture2
     "mymod:particle_texture2"
   ]
 }
 ```
 
-To reference a particle texture, the subtype of `TextureSheetParticle` should either take in an `SpriteSet` or a `TextureAtlasSprite` obtained from `SpriteSet`. `SpriteSet` holds a list of textures which refer to the sprites as defined by our `ParticleDescription`. `SpriteSet` has two methods, both of which grab a `TextureAtlasSprite` in different methods. The first method takes in two integers. The backing implementation allows the sprite to have a texture change as it ages. The second method takes in a `Random` instance to get a random texture from the sprite set. The sprite can be set within `TextureSheetParticle` by using one of the helper methods that takes in the `SpriteSet`: `#pickSprite` which uses the random method of picking a texture, and `#setSpriteFromAge` which uses the percentage method of two integers to pick the texture.
+要引用粒子纹理，`TextureSheetParticle` 的子类型应该接受从 `SpriteSet` 获得的 `SpriteSet` 或 `TextureAtlasSprite`。`SpriteSet` 包含一个纹理列表，这些纹理引用了我们的 `ParticleDescription` 中定义的精灵。`SpriteSet` 有两个方法，这两个方法都以不同方式获取 `TextureAtlasSprite`。第一个方法接受两个整数。其底层实现允许精灵随着时间变化而改变纹理。第二个方法接受一个 `Random` 实例，从精灵集中获取一个随机纹理。可以通过使用 `TextureSheetParticle` 中接受 `SpriteSet` 的辅助方法之一来设置精灵：`#pickSprite` 使用随机选择纹理的方法，`#setSpriteFromAge` 使用两个整数的百分比方法来选择纹理。
 
-To register these particle textures, a `SpriteParticleRegistration` needs to be supplied to the `RegisterParticleProvidersEvent#registerSpriteSet` method. This method takes in an `SpriteSet` holding the associated sprite set for the particle and creates an `ParticleProvider` to create the particle. The simplest method of implementation can be done by implementing `ParticleProvider` on some class and having the constructor take in an `SpriteSet`. Then the `SpriteSet` can be passed to the particle as normal.
+要注册这些粒子纹理，需要将 `SpriteParticleRegistration` 提供给 `RegisterParticleProvidersEvent#registerSpriteSet` 方法。此方法接受一个 `SpriteSet`，该 `SpriteSet` 包含粒子的相关精灵集，并创建一个 `ParticleProvider` 来创建粒子。最简单的实现方法可以是在某个类上实现 `ParticleProvider`，并让构造函数接受一个 `SpriteSet`。然后可以像往常一样将 `SpriteSet` 传递给粒子。
 
-!!! note
-    If you are registering a `TextureSheetParticle` subtype which only contains one texture, then you can supply a `ParticleProvider$Sprite` instead to the `#registerSprite` method, which has essentially the same functional interface method as `ParticleProvider`.
+!!! 注意
+    如果你要注册的 `TextureSheetParticle` 子类型仅包含一个纹理，那么你可以将 `ParticleProvider$Sprite` 提供给 `#registerSprite` 方法，它与 `ParticleProvider` 具有基本相同的函数式接口方法。
 
-Spawning a Particle
+生成粒子
 -------------------
 
-Particles can be spawned from either level instance. However, each side has a specific way to spawn a particle. If on the `ClientLevel`, `#addParticle` can be called to spawn a particle or `#addAlwaysVisibleParticle` can be called to spawn a particle that is visible from any distance. If on the `ServerLevel`, `#sendParticles` can be called to send a packet to the client to spawn the particle. Calling the two `ClientLevel` methods on the server will result in nothing.
+粒子可以从任意世界实例中生成。然而，每一端都有特定的生成粒子的方式。如果在 `ClientLevel` 上，可以调用 `#addParticle` 来生成粒子，或者调用 `#addAlwaysVisibleParticle` 来生成从任何距离都可见的粒子。如果在 `ServerLevel` 上，可以调用 `#sendParticles` 向客户端发送一个数据包以生成粒子。在服务器上调用这两个 `ClientLevel` 方法将不会有任何效果。
 
-[sides]: ../concepts/sides.md
-[registration]: ../concepts/registries.md#methods-for-registering
+[sides]:../concepts/sides.md
+[registration]:../concepts/registries.md#methods-for-registering
