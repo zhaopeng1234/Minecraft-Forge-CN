@@ -1,135 +1,135 @@
-# Menus
+# 菜单系统
 
-Menus are one type of backend for Graphical User Interfaces, or GUIs; they handle the logic involved in interacting with some represented data holder. Menus themselves are not data holders. They are views which allow to user to indirectly modify the internal data holder state. As such, a data holder should not be directly coupled to any menu, instead passing in the data references to invoke and modify.
+菜单是图形用户界面（GUI）的一种后端类型，它们处理与某些数据容器交互时涉及的逻辑。菜单本身并不是数据容器，而是允许用户间接修改内部数据容器状态的视图。因此，数据容器不应直接与任何菜单耦合，而应传入数据引用以供调用和修改。
 
 ## `MenuType`
 
-Menus are created and removed dynamically and as such are not registry objects. As such, another factory object is registered instead to easily create and refer to the *type* of the menu. For a menu, these are `MenuType`s.
+菜单是动态创建和移除的，因此它们本身不是注册对象。所以，需要注册另一个工厂对象，以便轻松创建和引用菜单的*类型*。对于菜单而言，这些就是 `MenuType`。
 
-`MenuType`s must be [registered].
+`MenuType` 必须[注册][registered]。
 
 ### `MenuSupplier`
 
-A `MenuType` is created by passing in a `MenuSupplier` and a `FeatureFlagSet` to its constructor. A `MenuSupplier` represents a function which takes in the id of the container and the inventory of the player viewing the menu, and returns a newly created [`AbstractContainerMenu`][acm].
+`MenuType` 通过将 `MenuSupplier` 和 `FeatureFlagSet` 传入其构造函数来创建。`MenuSupplier` 表示一个函数，它接受容器的 ID 和查看菜单的玩家的物品栏，并返回一个新创建的 [`AbstractContainerMenu`][acm]。
 
 ```java
-// For some DeferredRegister<MenuType<?>> REGISTER
+// 对于某个 DeferredRegister<MenuType<?>> REGISTER
 public static final RegistryObject<MenuType<MyMenu>> MY_MENU = REGISTER.register("my_menu", () -> new MenuType(MyMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
-// In MyMenu, an AbstractContainerMenu subclass
+// 在 MyMenu 中，这是一个 AbstractContainerMenu 子类
 public MyMenu(int containerId, Inventory playerInv) {
   super(MY_MENU.get(), containerId);
   // ...
 }
 ```
 
-!!! note
-    The container identifier is unique for an individual player. This means that the same container id on two different players will represent two different menus, even if they are viewing the same data holder.
+!!! 注意
+    容器标识符对于单个玩家是唯一的。这意味着，即使两个不同的玩家正在查看同一个数据容器，相同的容器 ID 在他们那里也代表两个不同的菜单。
 
-The `MenuSupplier` is usually responsible for creating a menu on the client with dummy data references used to store and interact with the synced information from the server data holder.
+`MenuSupplier` 通常负责在客户端创建一个菜单，该菜单使用虚拟数据引用来存储和与服务器数据容器同步的信息进行交互。
 
 ### `IContainerFactory`
 
-If additional information is needed on the client (e.g. the position of the data holder in the world), then the subclass `IContainerFactory` can be used instead. In addition to the container id and the player inventory, this also provides a `FriendlyByteBuf` which can store additional information that was sent from the server. A `MenuType` can be created using an `IContainerFactory` via `IForgeMenuType#create`.
+如果客户端需要额外的信息（例如，数据容器在世界中的位置），则可以使用子类 `IContainerFactory`。除了容器 ID 和玩家物品栏外，它还提供一个 `FriendlyByteBuf`，可以存储从服务器发送的额外信息。可以通过 `IForgeMenuType#create` 使用 `IContainerFactory` 创建 `MenuType`。
 
 ```java
-// For some DeferredRegister<MenuType<?>> REGISTER
+// 对于某个 DeferredRegister<MenuType<?>> REGISTER
 public static final RegistryObject<MenuType<MyMenuExtra>> MY_MENU_EXTRA = REGISTER.register("my_menu_extra", () -> IForgeMenuType.create(MyMenu::new));
 
-// In MyMenuExtra, an AbstractContainerMenu subclass
+// 在 MyMenuExtra 中，这是一个 AbstractContainerMenu 子类
 public MyMenuExtra(int containerId, Inventory playerInv, FriendlyByteBuf extraData) {
   super(MY_MENU_EXTRA.get(), containerId);
-  // Store extra data from buffer
+  // 从缓冲区存储额外数据
   // ...
 }
 ```
 
 ## `AbstractContainerMenu`
 
-All menus are extended from `AbstractContainerMenu`. A menu takes in two parameters, the [`MenuType`][mt], which represents the type of the menu itself, and the container id, which represents the unique identifier of the menu for the current accessor.
+所有菜单都继承自 `AbstractContainerMenu`。菜单接受两个参数，即 [`MenuType`][mt]，它表示菜单本身的类型，以及容器 ID，它表示当前访问者的菜单的唯一标识符。
 
-!!! important
-    The player can only have 100 unique menus open at once.
+!!! 重要
+    玩家一次只能打开 100 个唯一的菜单。
 
-Each menu should contain two constructors: one used to initialize the menu on the server and one used to initialize the menu on the client. The constructor used to initialize the menu on the client is the one supplied to the `MenuType`. Any fields that the server menu constructor contains should have some default for the client menu constructor.
+每个菜单应该包含两个构造函数：一个用于在服务器上初始化菜单，另一个用于在客户端上初始化菜单。用于在客户端上初始化菜单的构造函数是提供给 `MenuType` 的那个。服务器菜单构造函数包含的任何字段，在客户端菜单构造函数中都应该有一些默认值。
 
 ```java
-// Client menu constructor
+// 客户端菜单构造函数
 public MyMenu(int containerId, Inventory playerInventory) {
   this(containerId, playerInventory);
 }
 
-// Server menu constructor
+// 服务器菜单构造函数
 public MyMenu(int containerId, Inventory playerInventory) {
   // ...
 }
 ```
 
-Each menu implementation must implement two methods: `#stillValid` and [`#quickMoveStack`][qms].
+每个菜单实现必须实现两个方法：`#stillValid` 和 [`#quickMoveStack`][qms]。
 
-### `#stillValid` and `ContainerLevelAccess`
+### `#stillValid` 和 `ContainerLevelAccess`
 
-`#stillValid` determines whether the menu should remain open for a given player. This is typically directed to the static `#stillValid` which takes in a `ContainerLevelAccess`, the player, and the `Block` this menu is attached to. The client menu must always return `true` for this method, which the static `#stillValid` does default to. This implementation checks whether the player is within eight blocks of where the data storage object is located.
+`#stillValid` 确定给定玩家的菜单是否应该保持打开状态。这通常指向静态的 `#stillValid` 方法，该方法接受一个 `ContainerLevelAccess`、玩家以及此菜单所关联的 `Block`。客户端菜单的此方法必须始终返回 `true`，这也是静态 `#stillValid` 方法的默认行为。此实现会检查玩家是否在数据存储对象所在位置的八格范围内。
 
-A `ContainerLevelAccess` supplies the current level and location of the block within an enclosed scope. When constructing the menu on the server, a new access can be created by calling `ContainerLevelAccess#create`. The client menu constructor can pass in `ContainerLevelAccess#NULL`, which will do nothing.
+`ContainerLevelAccess` 在封闭作用域内提供当前世界和方块的位置。在服务器上构造菜单时，可以通过调用 `ContainerLevelAccess#create` 创建一个新的访问对象。客户端菜单构造函数可以传入 `ContainerLevelAccess#NULL`，它不执行任何操作。
 
 ```java
-// Client menu constructor
+// 客户端菜单构造函数
 public MyMenuAccess(int containerId, Inventory playerInventory) {
   this(containerId, playerInventory, ContainerLevelAccess.NULL);
 }
 
-// Server menu constructor
+// 服务器菜单构造函数
 public MyMenuAccess(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
   // ...
 }
 
-// Assume this menu is attached to RegistryObject<Block> MY_BLOCK
+// 假设此菜单与 RegistryObject<Block> MY_BLOCK 关联
 @Override
 public boolean stillValid(Player player) {
   return AbstractContainerMenu.stillValid(this.access, player, MY_BLOCK.get());
 }
 ```
 
-### Data Synchronization
+### 数据同步
 
-Some data needs to be present on both the server and the client to display to the player. To do this, the menu implements a basic layer of data synchronization such that whenever the current data does not match the data last synced to the client. For players, this is checked every tick.
+有些数据需要同时存在于服务器和客户端，以便向玩家显示。为此，菜单实现了一个基本的数据同步层，以便每当当前数据与上次同步到客户端的数据不匹配时进行更新。对于玩家而言，这会每秒检查一次。
 
-Minecraft supports two forms of data synchronization by default: `ItemStack`s via `Slot`s and integers via `DataSlot`s. `Slot`s and `DataSlot`s are views which hold references to data storages that can be be modified by the player in a screen, assuming the action is valid. These can be added to a menu within the constructor through `#addSlot` and `#addDataSlot`.
+Minecraft 默认支持两种形式的数据同步：通过 `Slot` 同步 `ItemStack`，通过 `DataSlot` 同步整数。`Slot` 和 `DataSlot` 是视图，它们持有对数据存储的引用，假设操作有效，玩家可以在屏幕中修改这些数据。可以在构造函数中通过 `#addSlot` 和 `#addDataSlot` 将它们添加到菜单中。
 
-!!! note
-    Since `Container`s used by `Slot`s are deprecated by Forge in favor of using the [`IItemHandler` capability][cap], the rest of the explanation will revolve around using the capability variant: `SlotItemHandler`.
+!!! 注意
+    由于 Forge 已弃用 `Slot` 使用的 `Container`，转而使用 [`IItemHandler` 能力][cap]，因此接下来的解释将围绕使用能力变体 `SlotItemHandler` 展开。
 
-A `SlotItemHandler` contains four parameters: the `IItemHandler` representing the inventory the stacks are within, the index of the stack this slot is specifically representing, and the x and y position of where the top-left position of the slot will render on the screen relative to `AbstractContainerScreen#leftPos` and `#topPos`. The client menu constructor should always supply an empty instance of an inventory of the same size.
+`SlotItemHandler` 包含四个参数：表示物品堆所在物品栏的 `IItemHandler`、此槽位具体表示的物品堆的索引，以及该槽位在屏幕上相对于 `AbstractContainerScreen#leftPos` 和 `#topPos` 的左上角渲染位置的 x 和 y 坐标。客户端菜单构造函数应始终提供一个相同大小的空物品栏实例。
 
-In most cases, any slots the menu contains is first added, followed by the player's inventory, and finally concluded with the player's hotbar. To access any individual `Slot` from the menu, the index must be calculated based upon the order of which slots were added.
+在大多数情况下，菜单包含的任何槽位会首先添加，然后是玩家的物品栏，最后是玩家的快捷栏。要从菜单中访问任何单个 `Slot`，必须根据槽位添加的顺序计算索引。
 
-A `DataSlot` is an abstract class which should implement a getter and setter to reference the data stored in the data storage object. The client menu constructor should always supply a new instance via `DataSlot#standalone`.
+`DataSlot` 是一个抽象类，应该实现一个 getter 和 setter 来引用数据存储对象中存储的数据。客户端菜单构造函数应始终通过 `DataSlot#standalone` 提供一个新实例。
 
-These, along with slots, should be recreated every time a new menu is initialized.
+每次初始化新菜单时，都应该重新创建这些以及槽位。
 
-!!! warning
-    Although a `DataSlot` stores an integer, it is effectively limited to a **short** (-32768 to 32767) because of how it sends the value across the network. The 16 high-order bits of the integer are ignored.
+!!! 警告
+    虽然 `DataSlot` 存储一个整数，但由于它在网络上传输值的方式，实际上它被限制为一个**短整型**（-32768 到 32767）。整数的高 16 位会被忽略。
 
 ```java
-// Assume we have an inventory from a data object of size 5
-// Assume we have a DataSlot constructed on each initialization of the server menu
+// 假设我们有一个来自数据对象的大小为 5 的物品栏
+// 假设在服务器菜单每次初始化时都会构造一个 DataSlot
 
-// Client menu constructor
+// 客户端菜单构造函数
 public MyMenuAccess(int containerId, Inventory playerInventory) {
   this(containerId, playerInventory, new ItemStackHandler(5), DataSlot.standalone());
 }
 
-// Server menu constructor
+// 服务器菜单构造函数
 public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dataInventory, DataSlot dataSingle) {
-  // Check if the data inventory size is some fixed value
-  // Then, add slots for data inventory
+  // 检查数据物品栏的大小是否为某个固定值
+  // 然后，为数据物品栏添加槽位
   this.addSlot(new SlotItemHandler(dataInventory, /*...*/));
 
-  // Add slots for player inventory
+  // 为玩家物品栏添加槽位
   this.addSlot(new Slot(playerInventory, /*...*/));
 
-  // Add data slots for handled integers
+  // 为处理的整数添加数据槽位
   this.addDataSlot(dataSingle);
 
   // ...
@@ -138,202 +138,31 @@ public MyMenuAccess(int containerId, Inventory playerInventory, IItemHandler dat
 
 #### `ContainerData`
 
-If multiple integers need to be synced to the client, a `ContainerData` can be used to reference the integers instead. This interface functions as an index lookup such that each index represents a different integer. `ContainerData`s can also be constructed in the data object itself if the `ContainerData` is added to the menu through `#addDataSlots`. The method creates a new `DataSlot` for the amount of data specified by the interface. The client menu constructor should always supply a new instance via `SimpleContainerData`.
+如果需要将多个整数同步到客户端，可以使用 `ContainerData` 来引用这些整数。此接口用作索引查找，每个索引代表一个不同的整数。如果通过 `#addDataSlots` 将 `ContainerData` 添加到菜单中，也可以在数据对象本身中构造 `ContainerData`。该方法会为接口指定的数据数量创建一个新的 `DataSlot`。客户端菜单构造函数应始终通过 `SimpleContainerData` 提供一个新实例。
 
 ```java
-// Assume we have a ContainerData of size 3
+// 假设我们有一个大小为 3 的 ContainerData
 
-// Client menu constructor
+// 客户端菜单构造函数
 public MyMenuAccess(int containerId, Inventory playerInventory) {
   this(containerId, playerInventory, new SimpleContainerData(3));
 }
 
-// Server menu constructor
+// 服务器菜单构造函数
 public MyMenuAccess(int containerId, Inventory playerInventory, ContainerData dataMultiple) {
-  // Check if the ContainerData size is some fixed value
+  // 检查 ContainerData 的大小是否为某个固定值
   checkContainerDataCount(dataMultiple, 3);
 
-  // Add data slots for handled integers
+  // 为处理的整数添加数据槽位
   this.addDataSlots(dataMultiple);
 
   // ...
 }
 ```
 
-!!! warning
-    As `ContainerData` delegates to `DataSlot`s, these are also limited to a **short** (-32768 to 32767).
+!!! 警告
+    由于 `ContainerData` 委托给 `DataSlot`，因此它们也被限制为一个**短整型**（-32768 到 32767）。
 
 #### `#quickMoveStack`
 
-`#quickMoveStack` is the second method that must be implemented by any menu. This method is called whenever a stack has been shift-clicked, or quick moved, out of its current slot until the stack has been fully moved out of its previous slot or there is no other place for the stack to go. The method returns a copy of the stack in the slot being quick moved.
-
-Stacks are typically moved between slots using `#moveItemStackTo`, which moves the stack into the first available slot. It takes in the stack to be moved, the first slot index (inclusive) to try and move the stack to, the last slot index (exclusive), and whether to check the slots from first to last (when `false`) or from last to first (when `true`).
-
-Across Minecraft implementations, this method is fairly consistent in its logic:
-
-```java
-// Assume we have a data inventory of size 5
-// The inventory has 4 inputs (index 1 - 4) which outputs to a result slot (index 0)
-// We also have the 27 player inventory slots and the 9 hotbar slots
-// As such, the actual slots are indexed like so:
-//   - Data Inventory: Result (0), Inputs (1 - 4)
-//   - Player Inventory (5 - 31)
-//   - Player Hotbar (32 - 40)
-@Override
-public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
-  // The quick moved slot stack
-  ItemStack quickMovedStack = ItemStack.EMPTY;
-  // The quick moved slot
-  Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex) 
-  
-   // If the slot is in the valid range and the slot is not empty
-  if (quickMovedSlot != null && quickMovedSlot.hasItem()) {
-    // Get the raw stack to move
-    ItemStack rawStack = quickMovedSlot.getItem(); 
-    // Set the slot stack to a copy of the raw stack
-    quickMovedStack = rawStack.copy();
-
-    /*
-    The following quick move logic can be simplified to if in data inventory,
-    try to move to player inventory/hotbar and vice versa for containers
-    that cannot transform data (e.g. chests).
-    */
-
-    // If the quick move was performed on the data inventory result slot
-    if (quickMovedSlotIndex == 0) {
-      // Try to move the result slot into the player inventory/hotbar
-      if (!this.moveItemStackTo(rawStack, 5, 41, true)) {
-        // If cannot move, no longer quick move
-        return ItemStack.EMPTY;
-      }
-
-      // Perform logic on result slot quick move
-      slot.onQuickCraft(rawStack, quickMovedStack);
-    }
-    // Else if the quick move was performed on the player inventory or hotbar slot
-    else if (quickMovedSlotIndex >= 5 && quickMovedSlotIndex < 41) {
-      // Try to move the inventory/hotbar slot into the data inventory input slots
-      if (!this.moveItemStackTo(rawStack, 1, 5, false)) {
-        // If cannot move and in player inventory slot, try to move to hotbar
-        if (quickMovedSlotIndex < 32) {
-          if (!this.moveItemStackTo(rawStack, 32, 41, false)) {
-            // If cannot move, no longer quick move
-            return ItemStack.EMPTY;
-          }
-        }
-        // Else try to move hotbar into player inventory slot
-        else if (!this.moveItemStackTo(rawStack, 5, 32, false)) {
-          // If cannot move, no longer quick move
-          return ItemStack.EMPTY;
-        }
-      }
-    }
-    // Else if the quick move was performed on the data inventory input slots, try to move to player inventory/hotbar
-    else if (!this.moveItemStackTo(rawStack, 5, 41, false)) {
-      // If cannot move, no longer quick move
-      return ItemStack.EMPTY;
-    }
-
-    if (rawStack.isEmpty()) {
-      // If the raw stack has completely moved out of the slot, set the slot to the empty stack
-      quickMovedSlot.set(ItemStack.EMPTY);
-    } else {
-      // Otherwise, notify the slot that that the stack count has changed
-      quickMovedSlot.setChanged();
-    }
-
-    /*
-    The following if statement and Slot#onTake call can be removed if the
-    menu does not represent a container that can transform stacks (e.g.
-    chests).
-    */
-    if (rawStack.getCount() == quickMovedStack.getCount()) {
-      // If the raw stack was not able to be moved to another slot, no longer quick move
-      return ItemStack.EMPTY;
-    }
-    // Execute logic on what to do post move with the remaining stack
-    quickMovedSlot.onTake(player, rawStack);
-  }
-
-  return quickMovedStack; // Return the slot stack
-}
-```
-
-## Opening a Menu
-
-Once a menu type has been registered, the menu itself has been finished, and a [screen] has been attached, a menu can then be opened by the player. Menus can be opened by calling `ServerPlayer#openMenu` on the logical server. The method takes in the `MenuProvider` of the server side menu, and optionally a `FriendlyByteBuf` if extra data needs to be synced to the client.
-
-!!! note
-    `ServerPlayer#openMenu` with the `FriendlyByteBuf` parameter should only be used if a menu type was created using an [`IContainerFactory`][icf].
-
-#### `MenuProvider`
-
-A `MenuProvider` is an interface that contains two methods: `#createMenu`, which creates the server instance of the menu, and `#getDisplayName`, which returns a component containing the title of the menu to pass to the [screen]. The `#createMenu` method contains three parameter: the container id of the menu, the inventory of the player who opened the menu, and the player who opened the menu.
-
-A `MenuProvider` can easily be created using `SimpleMenuProvider`, which takes in a method reference to create the server menu and the title of the menu.
-
-```java
-// In some implementation
-serverPlayer.openMenu(new SimpleMenuProvider(
-  (containerId, playerInventory, player) -> new MyMenu(containerId, playerInventory),
-  Component.translatable("menu.title.examplemod.mymenu")
-));
-```
-
-### Common Implementations
-
-Menus are typically opened on a player interaction of some kind (e.g. when a block or entity is right-clicked).
-
-#### Block Implementation
-
-Blocks typically implement a menu by overriding `BlockBehaviour#use`. If on the logical client, the interaction returns `InteractionResult#SUCCESS`. Otherwise, it opens the menu and returns `InteractionResult#CONSUME`.
-
-The `MenuProvider` should be implemented by overriding `BlockBehaviour#getMenuProvider`. Vanilla methods use this to view the menu in spectator mode.
-
-```java
-// In some Block subclass
-@Override
-public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-  return new SimpleMenuProvider(/* ... */);
-}
-
-@Override
-public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-  if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-    serverPlayer.openMenu(state.getMenuProvider(level, pos));
-  }
-  return InteractionResult.sidedSuccess(level.isClientSide);
-}
-```
-
-!!! note
-    This is the simplest way to implement the logic, not the only way. If you want the block to only open the menu under certain conditions, then some data will need to be synced to the client beforehand to return `InteractionResult#PASS` or `#FAIL` if the conditions are not met.
-
-#### Mob Implementation
-
-Mobs typically implement a menu by overriding `Mob#mobInteract`. This is done similarly to the block implementation with the only difference being that the `Mob` itself should implement `MenuProvider` to support spectator mode viewing.
-
-```java
-public class MyMob extends Mob implements MenuProvider {
-  // ...
-
-  @Override
-  public InteractionResult mobInteract(Player player, InteractionHand hand) {
-    if (!this.level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-      serverPlayer.openMenu(this);
-    }
-    return InteractionResult.sidedSuccess(this.level.isClientSide);
-  }
-}
-```
-
-!!! note
-    Once again, this is the simplest way to implement the logic, not the only way.
-
-[registered]: ../concepts/registries.md#methods-for-registering
-[acm]: #abstractcontainermenu
-[mt]: #menutype
-[qms]: #quickmovestack
-[cap]: ../datastorage/capabilities.md#forge-provided-capabilities
-[screen]: ./screens.md
-[icf]: #icontainerfactory
+`#quickMoveStack` 是任何菜单都必须实现的第二个方法。每当物品堆被按住 Shift 键点击（即快速移动）时，就会调用此方法，直到物品堆完全移出其先前的槽位，或者没有其他地方可以放置该物品堆为止。该方法返回正在快速移动的槽位中的物品堆
