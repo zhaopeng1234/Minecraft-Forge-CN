@@ -1,58 +1,57 @@
-`BakedModel`
-=============
+## `BakedModel`
 
-`BakedModel` is the result of calling `UnbakedModel#bake` for the vanilla model loader or `IUnbakedGeometry#bake` for custom model loaders. Unlike `UnbakedModel` or `IUnbakedGeometry`, which purely represents a shape without any concept of items or blocks, `BakedModel` is not as abstract. It represents geometry that has been optimized and reduced to a form where it is (almost) ready to go to the GPU. It can also process the state of an item or block to change the model.
+`BakedModel` 是调用原版模型加载器的 `UnbakedModel#bake` 方法，或者自定义模型加载器的 `IUnbakedGeometry#bake` 方法的结果。与 `UnbakedModel` 或 `IUnbakedGeometry` 不同，后两者纯粹表示一种形状，不涉及物品或方块的概念，而 `BakedModel` 没那么抽象。它表示已经过优化并简化为（几乎）可以直接送往 GPU 处理的几何图形。它还可以处理物品或方块的状态以改变模型。
 
-In a majority of cases, it is not really necessary to implement this interface manually. One can instead use one of the existing implementations.
+在大多数情况下，并不需要手动实现这个接口。可以选择使用现有的实现之一。
 
 ### `getOverrides`
 
-Returns the [`ItemOverrides`][overrides] to use for this model. This is only used if this model is being rendered as an item.
+返回此模型要使用的 [`ItemOverrides`][overrides]。只有当此模型作为物品进行渲染时，才会用到这个方法。
 
 ### `useAmbientOcclusion`
 
-If the model is rendered as a block in the level, the block in question does not emit any light, and ambient occlusion is enabled. This causes the model to be rendered with [ambient occlusion](ambocc).
+如果该模型在游戏世界中作为方块进行渲染，且相关方块不发光，同时环境光遮蔽功能已启用，那么这个模型会以 [环境光遮蔽](ambocc) 的效果进行渲染。
 
 ### `isGui3d`
 
-If the model is rendered as an item in an inventory, on the ground as an entity, on an item frame, etc., this makes the model look "flat." In GUIs, this also disables the lighting.
+如果该模型作为物品在物品栏、作为实体在地面上、在物品展示框等场景中渲染，此方法返回的结果会使模型看起来 “扁平”。在图形用户界面（GUI）中，这也会禁用光照效果。
 
 ### `isCustomRenderer`
 
-!!! important
-    Unless you know what you're doing, just `return false` from this and continue on.
+!!! 重要
+    除非你清楚自己在做什么，否则直接让此方法 `return false` 并继续即可。
 
-When rendering this as an item, returning `true` causes the model to not be rendered, instead falling back to `BlockEntityWithoutLevelRenderer#renderByItem`. For certain vanilla items such as chests and banners, this method is hardcoded to copy data from the item into a `BlockEntity`, before using a `BlockEntityRenderer` to render that BE in place of the item. For all other items, it will use the `BlockEntityWithoutLevelRenderer` instance provided by `IClientItemExtensions#getCustomRenderer`. Refer to [BlockEntityWithoutLevelRenderer][bewlr] page for more information.
+当将此模型作为物品进行渲染时，如果返回 `true`，模型将不会被渲染，而是会转而使用 `BlockEntityWithoutLevelRenderer#renderByItem` 方法。对于某些原版物品，如箱子和旗帜，此方法会被硬编码为将物品的数据复制到一个 `BlockEntity` 中，然后使用 `BlockEntityRenderer` 来渲染该方块实体，以此替代物品的渲染。对于其他所有物品，它将使用 `IClientItemExtensions#getCustomRenderer` 提供的 `BlockEntityWithoutLevelRenderer` 实例。更多信息请参考 [BlockEntityWithoutLevelRenderer][bewlr] 页面。
 
 ### `getParticleIcon`
 
-Whatever texture should be used for the particles. For blocks, this shows when an entity falls on it, when it breaks, etc. For items, this shows when it breaks or when it's eaten.
+该方法用于指定粒子应使用的纹理。对于方块来说，当实体落在上面、方块被破坏等情况时会显示此纹理。对于物品来说，在物品被破坏或被食用时会显示。
 
-!!! important
-    The vanilla method with no parameters has been deprecated in favor of `#getParticleIcon(ModelData)` since model data can have an effect on how a particular model might be rendered.
+!!! 重要
+    没有参数的原版方法已被弃用，建议使用 `#getParticleIcon(ModelData)`，因为模型数据可能会影响特定模型的渲染方式。
 
 ### <s>`getTransforms`</s>
 
-Deprecated in favor of implementing `#applyTransform`. The default implementation is fine if `#applyTransform` is implemented. See [Transform][transform].
+此方法已被弃用，建议实现 `#applyTransform` 方法。如果实现了 `#applyTransform`，默认实现就可以正常使用。请参考 [变换][transform] 部分。
 
 ### `applyTransform`
 
-See [Transform][transform].
+请参考 [变换][transform] 部分。
 
 ### `getQuads`
 
-This is the main method of `BakedModel`. It returns a list of `BakedQuad`s: objects which contain the low-level vertex data that will be used to render the model. If the model is being rendered as a block, then the `BlockState` passed in is non-null. If the model is being rendered as an item, the `ItemOverrides` returned from `#getOverrides` is responsible for handling the state of the item, and the `BlockState` parameter will be `null`.
+这是 `BakedModel` 的主要方法。它返回一个 `BakedQuad` 列表，这些对象包含用于渲染模型的底层顶点数据。如果模型作为方块进行渲染，传入的 `BlockState` 不为 `null`。如果模型作为物品进行渲染，`#getOverrides` 返回的 `ItemOverrides` 负责处理物品的状态，此时 `BlockState` 参数将为 `null`。
 
-!!! note 
-    The origin point for the vertices in a `BakedQuad` is the bottom, northwest corner. Vertex coordinate values less than 0 or greater than 1 will position the vertex outside of the block. To avoid lighting issues, provide the vertices in counterclockwise order.
+!!! 注意
+    `BakedQuad` 中顶点的原点是底部、西北角落。顶点坐标值小于 0 或大于 1 会使顶点位于方块之外。为避免光照问题，请按逆时针顺序提供顶点。
 
-The `Direction` passed in is used for face culling. If the block against the given side of another block being rendered is opaque, then the faces associated with that side are not rendered. If that parameter is `null`, all faces not associated with a side are returned (that will never be culled).
+传入的 `Direction` 参数用于面剔除。如果正在渲染的方块与另一个方块相邻的那一侧是不透明的，那么与该侧相关的面将不会被渲染。如果该参数为 `null`，则返回所有与侧面无关的面（这些面永远不会被剔除）。
 
-The `rand` parameter is an instance of Random.
+`rand` 参数是一个 `Random` 实例。
 
-It also takes in a non null `ModelData` instance. This can be used to define extra data when rendering the specific model via `ModelProperty`s. For example, one such property is `CompositeModel$Data`, which is used to store any additional submodel data for a model using the `forge:composite` model loader.
+该方法还接受一个非空的 `ModelData` 实例。这可用于通过 `ModelProperty` 在渲染特定模型时定义额外的数据。例如，`CompositeModel$Data` 就是这样一种属性，它用于为使用 `forge:composite` 模型加载器的模型存储任何额外的子模型数据。
 
-Note that this method is called very often: once for every combination of non-culled face and supported block render layer (anywhere between 0 to 28 times) *per block in a level*. This method should be as fast as possible, and should probably cache heavily.
+请注意，这个方法会被频繁调用：在游戏世界中，每个方块的每个未被剔除的面与每个支持的方块渲染层的组合都会调用一次（调用次数在 0 到 28 次之间）。这个方法应该尽可能快，并且可能需要大量使用缓存。
 
 [overrides]: ./itemoverrides.md
 [ambocc]: https://en.wikipedia.org/wiki/Ambient_occlusion
