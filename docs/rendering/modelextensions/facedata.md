@@ -1,21 +1,17 @@
-Face Data
-=========
+## 面数据
+在原版的 “元素（elements）” 模型中，关于元素面的额外数据可以在元素层级或面层级进行指定。未指定自身面数据的面将回退到元素的面数据，如果元素层级也未指定面数据，则使用默认值。
 
-In a vanilla "elements" model, additional data about an element's faces can be specified at either the element level or the face level. Faces which do not specify their own face data will fall back to the element's face data or a default if no face data is specified at the element level.
+要在生成的物品模型中使用此扩展，由于原版物品模型生成器未扩展以读取这些额外数据，模型必须通过 `forge:item_layers` 模型加载器进行加载。
 
-To use this extension for a generated item model, the model must be loaded through the `forge:item_layers` model loader due to the vanilla item model generator not being extended to read this additional data.
+面数据的所有值都是可选的。
 
-All values of the face data are optional.
+### 元素模型
+在原版的 “元素” 模型中，面数据适用于指定该数据的面，或者适用于指定该数据的元素中所有没有自身面数据的面。
 
-Elements Model
---------------
+!!! 注意
+    如果在一个面上指定了 `forge_data`，它将不会从元素层级的 `forge_data` 声明中继承任何参数。
 
-In vanilla "elements" models, the face data applies to the face it is specified in or all faces of the element it is specified in which don't have their own face data.
-
-!!!note
-    If `forge_data` is specified on a face, it will not inherit any parameters from the element-level `forge_data` declaration.
-
-The additional data can be specified in the two ways shown in this example:
+额外数据可以通过以下示例中的两种方式进行指定：
 ```js
 {
   "elements": [
@@ -44,14 +40,12 @@ The additional data can be specified in the two ways shown in this example:
 }
 ```
 
-Generated Item Model
---------------------
+### 生成的物品模型
+在使用 `forge:item_layers` 加载器生成的物品模型中，面数据是为每个纹理层指定的，并适用于所有几何图形（正面/背面四边形和边缘四边形）。
 
-In item models generated using the `forge:item_layers` loader, face data is specified for each texture layer and applies to all of the geometry (front/back facing quads and edge quads).
+`forge_data` 字段必须位于模型 JSON 的顶级，每个键值对将一个面数据对象与一个图层索引关联起来。
 
-The `forge_data` field must be located at the top level of the model JSON, with each key-value pair associating a face data object to a layer index.
-
-In the following example, layer 1 will be tinted red and glow at full brightness:
+在以下示例中，图层 1 将被染成红色并以全亮度发光：
 ```js
 {
   "textures": {
@@ -69,40 +63,36 @@ In the following example, layer 1 will be tinted red and glow at full brightness
 }
 ```
 
-Parameters
-----------
+### 参数
 
-### Color
+#### 颜色
+使用 `color` 条目指定颜色值将把该颜色作为色调应用到四边形上。默认值为 `0xFFFFFFFF`（白色，完全不透明）。颜色必须采用 `ARGB` 格式并打包成 32 位整数，可以指定为十六进制字符串（`"0xAARRGGBB"`）或十进制整数字面量（JSON 不支持十六进制整数字面量）。
 
-Specifying a color value with the `color` entry will apply that color as a tint to the quads. Defaults to `0xFFFFFFFF` (white, fully opaque). The color must be in the `ARGB` format packed into a 32-bit integer and can be specified as either a hexadecimal string (`"0xAARRGGBB"`) or as a decimal integer literal (JSON does not support hexadecimal integer literals).
+!!! 警告
+    四个颜色分量会与纹理的像素相乘。省略 alpha 分量相当于将其设为 0，这会使几何图形完全透明。
 
-!!! warning
-    The four color components are multiplied with the texture's pixels. Omitting the alpha component is equivalent to making it 0, which will make the geometry fully transparent.
+如果颜色值是固定的，这可以替代使用 [`BlockColor` 和 `ItemColor`][tinting] 进行染色。
 
-This can be used as a replacement for tinting with [`BlockColor` and `ItemColor`][tinting] if the color values are constant.
+#### 方块光照和天空光照
+分别使用 `block_light` 和 `sky_light` 条目指定方块光照和/或天空光照值将覆盖四边形的相应光照值。两个值的默认值均为 0。这些值必须在 0 - 15（包含）的范围内，并且在渲染面时被视为相应光照类型的最小值，这意味着世界中相应光照类型的更高值将覆盖指定的值。
 
-### Block and Sky Light
+指定的光照值纯粹是客户端的，既不会影响服务器的光照等级，也不会影响周围方块的亮度。
 
-Specifying a block and/or sky light value with the `block_light` and `sky_light` entry respectively will override the respective light value of the quads. Both values default to 0. The values must be in the range 0-15 (inclusive) and are treated as a minimum value for the respective light type when the face is rendered, meaning that a higher in-world value of the respective light type will override the specified value.
+#### 环境光遮蔽
+指定 `ambient_occlusion` 标志将为四边形配置 [环境光遮蔽（AO）]。默认值为 `true`。此标志的行为等同于原版格式的顶级 `ambientocclusion` 标志。
 
-The specified light values are purely client-side and affect neither the server's light level nor the brightness of surrounding blocks.
+![环境光遮蔽效果][ao_img]  
+*左侧启用了环境光遮蔽，右侧禁用了环境光遮蔽，通过平滑光照图形设置进行演示*
 
-### Ambient Occlusion
-
-Specifying the `ambient_occlusion` flag will configure [AO] for the quads. Defaults to `true`. The behaviour of this flag is equivalent to the top-level `ambientocclusion` flag of the vanilla format.
-
-![Ambient occlusion in action][ao_img]  
-*Ambient occlusion enabled on the left and disabled on the right, demonstrated with the Smooth Lighting graphics setting*
-
-!!! note
-    If the top-level AO flag is set to false, specifying this flag as true on an element or face won't be able to override the top-level flag.
+!!! 注意
+    如果顶级 AO 标志设置为 `false`，在元素或面上将此标志指定为 `true` 无法覆盖顶级标志。
     ```js
     {
       "ambientocclusion": false,
       "elements": [
         {
           "forge_data": {
-            "ambient_occlusion": true // Has no effect
+            "ambient_occlusion": true // 无效
           }
         }
       ]
