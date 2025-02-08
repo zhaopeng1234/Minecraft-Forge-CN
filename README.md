@@ -43,17 +43,17 @@
 * ### 图形化用户界面(GUI):
     - [菜单](/docs/gui/menus.md)
     - [屏幕](/docs/gui/screens.md)
-* ### Rendering:
-    * #### Model Extensions:
+* ### 渲染:
+    * #### 模型扩展:
       - [~~介绍(缺失)~~](/docs/rendering/modelextensions/index.md)
       - [根变换](/docs/rendering/modelextensions/transforms.md)
       - [渲染类型](/docs/rendering/modelextensions/rendertypes.md)
       - [部件可见性](/docs/rendering/modelextensions/visibility.md)
-      - [Face Data](/docs/rendering/modelextensions/facedata.md)
-    * #### Model Loaders:
-      - [Introduction](/docs/rendering/modelloaders/index.md)
+      - [面数据](/docs/rendering/modelextensions/facedata.md)
+    * #### 模型加载器:
+      - [介绍](/docs/rendering/modelloaders/index.md)
       - [Baked Model](/docs/rendering/modelloaders/bakedmodel.md)
-      - [Transform](/docs/rendering/modelloaders/transform.md)
+      - [变换](/docs/rendering/modelloaders/transform.md)
       - [Item Overrides](/docs/rendering/modelloaders/itemoverrides.md)
 * ### Resources:
     * #### Client Assets:
