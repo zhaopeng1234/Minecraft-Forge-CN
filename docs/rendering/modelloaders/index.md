@@ -1,24 +1,20 @@
-Custom Model Loaders
-====================
+## 自定义模型加载器
+“模型” 简单来说就是一种形状。它可以是一个简单的立方体，也可以是多个立方体，可以是一个截角二十面体，或者介于两者之间的任何形状。你看到的大多数模型都是原版的 JSON 格式。其他格式的模型在运行时会由 `IGeometryLoader` 加载到 `IUnbakedGeometry` 中。Forge 为 WaveFront OBJ 文件、桶、复合模型、不同渲染层的模型以及对原版 `builtin/generated` 物品模型的重新实现提供了默认实现。大多数情况下，代码并不关心模型是由什么加载的或者是什么格式，因为它们最终在代码中都由 `BakedModel` 表示。
 
-A "model" is simply a shape. It can be a simple cube, it can be several cubes, it can be a truncated icosidodecahedron, or anything in between. Most models you'll see will be in the vanilla JSON format. Models in other formats are loaded into `IUnbakedGeometry`s by an `IGeometryLoader` at runtime. Forge provides default implementations for WaveFront OBJ files, buckets, composite models, models in different render layers, and a reimplementation of Vanilla's `builtin/generated` item model. Most things do not care about what loaded the model or what format it's in as they are all eventually represented by an `BakedModel` in code.
+!!! 警告
+    在模型 JSON 文件的顶级通过 `loader` 条目指定自定义模型加载器时，`elements` 条目将被忽略，除非自定义加载器对其进行处理。所有其他原版条目仍会被加载，并且在未烘焙的 `BlockModel` 表示中可用，也可能会在自定义加载器之外被使用。
 
-!!! warning
-    Specifying a custom model loader through the top-level `loader` entry in a model JSON will cause the `elements` entry to be ignored unless it is consumed by the custom loader. All other vanilla entries will still be loaded and available in the unbaked `BlockModel` representation and may be consumed outside of the custom loader.
-
-WaveFront OBJ Models
---------------------
-
-Forge adds a loader for the `.obj` file format. To use these models, the JSON must reference the `forge:obj` loader. This loader accepts any model location that is in a registered namespace and whose path ends in `.obj`. The `.mtl` file should be placed in the same location with the same name as the `.obj` to be used automatically. The `.mtl` file will probably have to be manually edited to change the paths pointing to textures defined within the JSON. Additionally, the V axis for textures may be flipped depending on the external program that created the model (i.e. V = 0 may be the bottom edge, not the top). This may be rectified in the modelling program itself or done in the model JSON like so:
+### WaveFront OBJ 模型
+Forge 为 `.obj` 文件格式添加了一个加载器。要使用这些模型，JSON 文件必须引用 `forge:obj` 加载器。这个加载器接受任何在已注册命名空间中且路径以 `.obj` 结尾的模型位置。`.mtl` 文件应与 `.obj` 文件放在同一位置且名称相同，这样就会被自动使用。可能需要手动编辑 `.mtl` 文件，以更改其中指向 JSON 中定义的纹理的路径。此外，根据创建模型的外部程序，纹理的 V 轴可能会翻转（例如，V = 0 可能是底边，而不是顶边）。这可以在建模程序中进行修正，也可以在模型 JSON 中这样处理：
 
 ```js
 {
-  // Add the following line on the same level as a 'model' declaration
+  // 在 'model' 声明的同一层级添加以下行
   "loader": "forge:obj",
   "flip_v": true,
   "model": "examplemod:models/block/model.obj",
   "textures": {
-    // Can refer to in .mtl using #texture0
+    // 可以在 .mtl 中使用 #texture0 引用
     "texture0": "minecraft:block/dirt",
     "particle": "minecraft:block/dirt"
   }
