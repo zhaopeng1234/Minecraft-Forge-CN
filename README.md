@@ -55,25 +55,25 @@
       - [Baked Model](/docs/rendering/modelloaders/bakedmodel.md)
       - [变换](/docs/rendering/modelloaders/transform.md)
       - [Item Overrides](/docs/rendering/modelloaders/itemoverrides.md)
-* ### Resources:
-    * #### Client Assets:
-      - [Introduction](/docs/resources/client/index.md)
-      - Models:
-        - [Introduction](/docs/resources/client/models/index.md)
-        - [Texture Tinting](/docs/resources/client/models/tinting.md)
-        - [Item Properties](/docs/resources/client/models/itemproperties.md)
-    * #### Server Data:
-      - [Introduction](/docs/resources/server/index.md)
-      - Recipes:
-        - [Introduction](/docs/resources/server/recipes/index.md)
-        - [Custom Recipes](/docs/resources/server/recipes/custom.md)
-        - [Ingredients](/docs/resources/server/recipes/ingredients.md)
-        - [Non-Datapack Recipes](/docs/resources/server/recipes/incode.md)
-      - [Loot Tables](/docs/resources/server/loottables.md)
-      - [Global Loot Modifiers](/docs/resources/server/glm.md)
-      - [Tags](/docs/resources/server/tags.md)
-      - [Advancements](/docs/resources/server/advancements.md)
-      - [Conditionally-Loaded Data](/docs/resources/server/conditional.md)
+* ### 资源:
+    * #### 客户端资产:
+      - [介绍](/docs/resources/client/index.md)
+      - 模型:
+        - [介绍](/docs/resources/client/models/index.md)
+        - [纹理着色](/docs/resources/client/models/tinting.md)
+        - [物品属性](/docs/resources/client/models/itemproperties.md)
+    * #### 服务端数据:
+      - [介绍](/docs/resources/server/index.md)
+      - 配方:
+        - [介绍](/docs/resources/server/recipes/index.md)
+        - [自定义配方](/docs/resources/server/recipes/custom.md)
+        - [原料](/docs/resources/server/recipes/ingredients.md)
+        - [非数据包合成配方](/docs/resources/server/recipes/incode.md)
+      - [战利品表](/docs/resources/server/loottables.md)
+      - [全局战利品修改器](/docs/resources/server/glm.md)
+      - [标签](/docs/resources/server/tags.md)
+      - [进度系统](/docs/resources/server/advancements.md)
+      - [条件加载数据](/docs/resources/server/conditional.md)
 * ### Data Generation:
     * [Introduction](/docs/datagen/index.md)
     * #### Client Assets:
