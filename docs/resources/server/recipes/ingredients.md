@@ -1,61 +1,50 @@
-Ingredients
-===========
+## 材料（Ingredients）
+`Ingredient` 是基于物品的输入的谓词处理器，用于检查某个 `ItemStack` 是否满足成为合成配方中有效输入的条件。所有接受输入的[原版合成配方][recipes]都使用一个 `Ingredient` 或一个 `Ingredient` 列表，然后将其合并为一个单一的 `Ingredient`。
 
-`Ingredient`s are predicate handlers for item-based inputs which check whether a certain `ItemStack` meets the condition to be a valid input in a recipe. All [vanilla recipes][recipes] that take inputs use an `Ingredient` or a list of `Ingredient`s, which is then merged into a single `Ingredient`.
+### 自定义材料
+除了[复合材料][compound]之外，可以通过将 `type` 设置为[材料序列化器][serializer]的名称来指定自定义材料。如果未指定类型，`type` 默认使用原版材料 `minecraft:item`。自定义材料也可以轻松用于[数据生成][datagen]。
 
-Custom Ingredients
-------------------
+#### Forge 提供的额外材料类型
+Forge 为开发者提供了一些额外的 `Ingredient` 类型。
 
-Custom ingredients can be specified by setting `type` to the name of the [ingredient's serializer][serializer], with the exception of [compound ingredients][compound]. When no type is specified, `type` defaults to the vanilla ingredient `minecraft:item`. Custom ingredients can also easily be used in [data generation][datagen].
-
-### Forge Types
-
-Forge provides a few additional `Ingredient` types for programmers to implement. 
-
-#### CompoundIngredient
-
-Though they are functionally identical, Compound ingredients replaces the way one would implement a list of ingredients would in a recipe. They work as a set OR where the passed in stack must be within at least one of the supplied ingredients. This change was made to allow custom ingredients to work correctly within lists. As such, **no type** needs to be specified.
-
+##### 复合材料（CompoundIngredient）
+虽然功能相同，但复合材料取代了在合成配方中实现材料列表的方式。它们作为一个逻辑或集合工作，即传入的物品堆必须至少符合所提供的材料之一。进行此更改是为了让自定义材料在列表中能正常工作。因此，**无需指定类型**。
 ```js
-// For some input
+// 对于某些输入
 [
-  // At least one of these ingredients must match to succeed
+  // 这些材料中至少有一个必须匹配才能成功
   {
-    // Ingredient
+    // 材料
   },
   {
-    // Custom ingredient
+    // 自定义材料
     "type": "examplemod:example_ingredient"
   }
 ]
 ```
 
-#### StrictNBTIngredient
-
-`StrictNBTIngredient`s compare the item, damage, and the share tags (as defined by `IForgeItem#getShareTag`) on an `ItemStack` for exact equivalency. This can be used by specifying the `type` as `forge:nbt`.
-
+##### 严格 NBT 材料（StrictNBTIngredient）
+`StrictNBTIngredient` 会比较 `ItemStack` 上的物品、耐久度和共享标签（由 `IForgeItem#getShareTag` 定义），以确保完全等效。可以通过将 `type` 指定为 `forge:nbt` 来使用它。
 ```js
-// For some input
+// 对于某些输入
 {
   "type": "forge:nbt",
   "item": "examplemod:example_item",
   "nbt": {
-    // Add nbt data (must match exactly what is on the stack)
+    // 添加 NBT 数据（必须与物品堆上的完全匹配）
   }
 }
 ```
 
-### PartialNBTIngredient
-
-`PartialNBTIngredient`s are a looser version of [`StrictNBTIngredient`][nbt] as they compare against a single or set of items and only keys specified within the share tag (as defined by `IForgeItem#getShareTag`). This can be used by specifying the `type` as `forge:partial_nbt`.
-
+##### 部分 NBT 材料（PartialNBTIngredient）
+`PartialNBTIngredient` 是[`StrictNBTIngredient`][nbt] 的一种宽松版本，它针对单个或一组物品进行比较，并且仅比较共享标签（由 `IForgeItem#getShareTag` 定义）中指定的键。可以通过将 `type` 指定为 `forge:partial_nbt` 来使用它。
 ```js
-// For some input
+// 对于某些输入
 {
   "type": "forge:partial_nbt",
 
-  // Either 'item' or 'items' must be specified
-  // If both are specified, only 'item' will be read
+  // 必须指定 'item' 或 'items' 中的一个
+  // 如果两者都指定，仅会读取 'item'
   "item": "examplemod:example_item",
   "items": [
     "examplemod:example_item",
@@ -64,109 +53,100 @@ Though they are functionally identical, Compound ingredients replaces the way on
   ],
 
   "nbt": {
-    // Checks only for equivalency on 'key1' and 'key2'
-    // All other keys in the stack will not be checked
+    // 仅检查 'key1' 和 'key2' 的等效性
+    // 物品堆中的所有其他键将不会被检查
     "key1": "data1",
     "key2": {
-      // Data 2
+      // 数据 2
     }
   }
 }
 ```
 
-### IntersectionIngredient
-
-`IntersectionIngredient`s work as a set AND where the passed in stack must match all supplied ingredients. There must be at least two ingredients supplied to this. This can be used by specifying the `type` as `forge:intersection`.
-
+##### 交集材料（IntersectionIngredient）
+`IntersectionIngredient` 作为一个逻辑与集合工作，即传入的物品堆必须匹配所有提供的材料。必须至少提供两个材料。可以通过将 `type` 指定为 `forge:intersection` 来使用它。
 ```js
-// For some input
+// 对于某些输入
 {
   "type": "forge:intersection",
 
-  // All of these ingredients must return true to succeed
+  // 所有这些材料都必须返回 true 才能成功
   "children": [
     {
-      // Ingredient 1
+      // 材料 1
     },
     {
-      // Ingredient 2
+      // 材料 2
     }
     // ...
   ]
 }
 ```
 
-### DifferenceIngredient
-
-`DifferenceIngredient`s work as a set subtraction (SUB) where the passed in stack must match the first ingredient but must not match the second ingredient. This can be used by specifying the `type` as `forge:difference`.
-
+##### 差集材料（DifferenceIngredient）
+`DifferenceIngredient` 作为一个集合减法（SUB）工作，即传入的物品堆必须匹配第一个材料，但不能匹配第二个材料。可以通过将 `type` 指定为 `forge:difference` 来使用它。
 ```js
-// For some input
+// 对于某些输入
 {
   "type": "forge:difference",
   "base": {
-    // Ingredient the stack is in
+    // 物品堆所属的材料
   },
   "subtracted": {
-    // Ingredient the stack is NOT in
+    // 物品堆不属于的材料
   }
 }
 ```
 
-Creating Custom Ingredients
----------------------------
+### 创建自定义材料
+可以通过为创建的 `Ingredient` 子类实现 `IIngredientSerializer` 来创建自定义材料。
 
-Custom ingredients can be created by implementing `IIngredientSerializer` for the created `Ingredient` subclass.
+!!! 提示
+    自定义材料应继承 `AbstractIngredient`，因为它提供了一些有用的抽象，便于实现。
 
-!!! tip
-    Custom ingredients should subclass `AbstractIngredient` as it provides some useful abstractions for ease of implementation.
+#### 材料子类
+每个材料子类需要实现三个重要的方法：
 
-### Ingredient Subclass
+| 方法 | 描述 |
+| :---: | :--- |
+| `getSerializer` | 返回用于读写材料的[序列化器]。 |
+| `test` | 如果输入对于此材料有效，则返回 `true`。 |
+| `isSimple` | 如果材料根据物品堆的标签进行匹配，则返回 `false`。`AbstractIngredient` 子类需要定义此行为，而 `Ingredient` 子类默认返回 `true`。 |
 
-There are three important methods to implement for each ingredient subclass:
+所有其他定义的方法由开发者根据材料子类的需要使用。
 
- Method       | Description
- :---:        | :---
-getSerializer | Returns the [serializer] used to read and write the ingredient.
-test          | Returns true if the input is valid for this ingredient.
-isSimple      | Returns false if the ingredient matches on the stack's tag. `AbstractIngredient` subclasses will need to define this behavior, while `Ingredient` subclasses return `true` by default.
+#### IIngredientSerializer
+`IIngredientSerializer` 子类型必须实现三个方法：
 
-All other defined methods are left as an exercise to the reader to use as required for the ingredient subclass.
+| 方法 | 描述 |
+| :---: | :--- |
+| `parse (JSON)` | 将 `JsonObject` 转换为 `Ingredient`。 |
+| `parse (Network)` | 读取网络缓冲区以解码 `Ingredient`。 |
+| `write` | 将 `Ingredient` 写入网络缓冲区。 |
 
-### IIngredientSerializer
+此外，`Ingredient` 子类应该实现 `Ingredient#toJson` 以便用于[数据生成][datagen]。`AbstractIngredient` 子类将 `#toJson` 设为抽象方法，要求实现该方法。
 
-`IIngredientSerializer` subtypes must implement three methods:
-
- Method         | Description
- :---:          | :---
-parse (JSON)    | Converts a `JsonObject` to an `Ingredient`.
-parse (Network) | Reads the network buffer to decode an `Ingredient`.
-write           | Writes an `Ingredient` to the network buffer.
-
-Additionally, `Ingredient` subclasses should implement `Ingredient#toJson` for use with [data generation][datagen]. `AbstractIngredient` subclasses make `#toJson` an abstract method requiring the method to be implemented.
-
-Afterwards, a static instance should be declared to hold the initialized serializer and then registered using `CraftingHelper#register` either during the `RegisterEvent` for `RecipeSerializer`s or during `FMLCommonSetupEvent`. The `Ingredient` subclass return the static instance of the serializer in `Ingredient#getSerializer`.
-
+之后，应声明一个静态实例来保存初始化的序列化器，然后在 `RecipeSerializer` 的 `RegisterEvent` 期间或 `FMLCommonSetupEvent` 期间使用 `CraftingHelper#register` 进行注册。`Ingredient` 子类在 `Ingredient#getSerializer` 中返回序列化器的静态实例。
 ```java
-// In some serializer class
+// 在某个序列化器类中
 public static final ExampleIngredientSerializer INSTANCE = new ExampleIngredientSerializer();
 
-// In some handler class
+// 在某个处理类中
 public void registerSerializers(RegisterEvent event) {
   event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS,
     helper -> CraftingHelper.register(registryName, INSTANCE)
   );
 }
 
-// In some ingredient subclass
+// 在某个材料子类中
 @Override
 public IIngredientSerializer<? extends Ingredient> getSerializer() {
   return INSTANCE;
 }
 ```
 
-!!! tip
-    If using `FMLCommonSetupEvent` to register an ingredient serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
+!!! 提示
+    如果使用 `FMLCommonSetupEvent` 来注册材料序列化器，必须通过 `FMLCommonSetupEvent#enqueueWork` 将其加入同步工作队列，因为 `CraftingHelper#register` 不是线程安全的。
 
 [recipes]: https://minecraft.wiki/w/Recipe#List_of_recipe_types
 [nbt]: #strictnbtingredient
