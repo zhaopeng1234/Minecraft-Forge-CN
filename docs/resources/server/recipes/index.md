@@ -1,19 +1,17 @@
-Recipes
-=======
+## 合成配方
 
-Recipes are a way to transform some number of objects into other objects within a Minecraft world. Although the vanilla system deals purely with item transformations, the system as a whole can be expanded to use any object the programmer creates.
+合成配方是在Minecraft世界中将一定数量的物品转化为其他物品的方式。虽然原版系统仅处理物品转化，但整个系统可以扩展为使用程序员创建的任何对象。
 
-Data-Driven Recipes
--------------------
+### 数据驱动的合成配方
 
-Most recipe implementations within vanilla are data driven via JSON. This means that a mod is not necessary to create a new recipe, only a [Data pack][datapack]. A full list on how to create and put these recipes within the mod's `resources` folder can be found on the [Minecraft Wiki][wiki].
+原版中的大多数合成配方实现都是通过JSON进行数据驱动的。这意味着创建新的合成配方不一定需要模组，只需要一个[数据包][datapack]即可。关于如何在模组的`resources`文件夹中创建和放置这些配方的完整列表，可以在[Minecraft维基百科][wiki]上找到。
 
-A recipe can be obtained within the Recipe Book as a reward for completing an [advancement][advancement]. Recipe advancements always have `minecraft:recipes/root` as their parent, to not to appear on the advancement screen. The default criteria to gain the recipe advancement is a check if the user has unlocked the recipe from using it once or receiving it through a command like `/recipe`:
+合成配方可以作为完成[进度][advancement]的奖励在合成配方书中获得。合成配方进度的父进度始终是`minecraft:recipes/root`，这样它们就不会显示在进度界面上。获得合成配方进度的默认条件是检查用户是否通过使用一次合成配方或通过`/recipe`等命令获得了该配方：
 
 ```js
-// Within some recipe advancement json
-"has_the_recipe": { // Criteria label
-  // Succeeds if examplemod:example_recipe is used
+// 在某个合成配方进度的JSON文件中
+"has_the_recipe": { // 条件标签
+  // 如果examplemod:example_recipe被使用，则条件满足
   "trigger": "minecraft:recipe_unlocked",
   "conditions": {
     "recipe": "examplemod:example_recipe"
@@ -23,75 +21,73 @@ A recipe can be obtained within the Recipe Book as a reward for completing an [a
 "requirements": [
   [
     "has_the_recipe"
-    // ... Other criteria labels to be ORed against to unlock recipe
+    // ... 其他用于解锁配方的条件标签，使用逻辑或关系
   ]
 ]
 ```
 
-Data-driven recipes and their unlocking advancement can be [generated][datagen] via `RecipeProvider`.
+数据驱动的合成配方及其解锁进度可以通过`RecipeProvider`[自动生成][datagen]。
 
-Recipe Manager
---------------
+### 合成配方管理器
 
-Recipes are loaded and stored via the `RecipeManager`. Any operations relating to getting available recipe(s) are handled by this manager. There are two important methods to know of:
+合成配方通过`RecipeManager`加载和存储。任何与获取可用合成配方相关的操作都由该管理器处理。有两个重要的方法需要了解：
 
- Method         | Description
- :---:          | :---
-`getRecipeFor`  | Gets the first recipe that matches the current input.
-`getRecipesFor` | Gets all recipes that match the current input.
+| 方法 | 描述 |
+| :---: | :--- |
+| `getRecipeFor` | 获取与当前输入匹配的第一个合成配方。 |
+| `getRecipesFor` | 获取与当前输入匹配的所有合成配方。 |
 
-Each method takes in a `RecipeType`, which denotes what method is being applied to use the recipe (crafting, smelting, etc.), a `Container` which holds the configuration of the inputs, and the current level which is passed to `Recipe#matches` along with the container.
+每个方法都接受一个`RecipeType`，它表示使用合成配方的方式（合成、熔炼等），一个`Container`，它包含输入的配置，以及当前的游戏世界，该世界会与容器一起传递给`Recipe#matches`方法。
 
-!!! important
-    Forge provides the `RecipeWrapper` utility class which extends `Container` for wrapping around `IItemHandler`s and passing them to methods which requires a `Container` parameter.
+!!! 重要
+    Forge提供了`RecipeWrapper`工具类，它扩展了`Container`，用于包装`IItemHandler`并将其传递给需要`Container`参数的方法。
 
     ```java
-    // Within some method with IItemHandlerModifiable handler
+    // 在某个包含IItemHandlerModifiable handler的方法中
     recipeManger.getRecipeFor(RecipeType.CRAFTING, new RecipeWrapper(handler), level);
     ```
 
-Additional Features
--------------------
+### 附加功能
 
-Forge provides some additional behavior to the recipe schema and its implementations for greater control of the system.
+Forge为合成配方架构及其实现提供了一些额外的功能，以便更好地控制系统。
 
-### Recipe ItemStack Result
+#### 合成配方物品堆结果
 
-Except for `minecraft:stonecutting` recipes, all vanilla recipe serializers expand the `result` tag to take in a full `ItemStack` as a `JsonObject` instead of just the item name and amount in some cases.
+除了`minecraft:stonecutting`合成配方外，在某些情况下，所有原版合成配方序列化器都会将`result`标签扩展为接受一个完整的`ItemStack`作为`JsonObject`，而不仅仅是物品名称和数量。
 
 ```js
-// In some recipe JSON
+// 在某个合成配方的JSON文件中
 "result": {
-  // The name of the registry item to give as a result
+  // 作为结果给予的注册物品的名称
   "item": "examplemod:example_item",
-  // The number of items to return
+  // 返回的物品数量
   "count": 4,
-  // The tag data of the stack, can also be a string
+  // 物品堆的标签数据，也可以是字符串
   "nbt": {
-      // Add tag data here
+      // 在此处添加标签数据
   }
 }
 ```
 
-!!! note
-    The `nbt` tag can alternatively be a string containing a stringified NBT (or SNBT) for data which cannot be properly represented as a JSON object (such as `IntArrayTag`s).
+!!! 注意
+    `nbt`标签也可以是一个包含字符串化NBT（或SNBT）的字符串，用于无法正确表示为JSON对象的数据（如`IntArrayTag`）。
 
-### Conditional Recipes
+#### 条件合成配方
 
-Recipes and their unlocking advancement can be [loaded conditionally and defaulted][conditional] depending on what information is present (mod loaded, item exists, etc.).
+合成配方及其解锁进度可以根据可用信息（模组是否加载、物品是否存在等）[有条件地加载并设置默认值][conditional]。
 
-### Larger Crafting Grids
+#### 更大的合成网格
 
-By default, vanilla declares a maximum width and height for a crafting grid to be a 3x3 square. This can be expanded by calling `ShapedRecipe#setCraftingSize` with the new width and height in `FMLCommonSetupEvent`.
+默认情况下，原版规定合成网格的最大宽度和高度为3x3的正方形。可以在`FMLCommonSetupEvent`中调用`ShapedRecipe#setCraftingSize`方法并传入新的宽度和高度来扩展这个限制。
 
-!!! warning
-    `ShapedRecipe#setCraftingSize` is **NOT** thread-safe. As such, it should be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork`.
+!!! 警告
+    `ShapedRecipe#setCraftingSize`方法**不是线程安全的**。因此，应该通过`FMLCommonSetupEvent#enqueueWork`将其加入同步工作队列。
 
-Larger crafting grids in recipes can be [data generated][datagen].
+合成配方中更大的合成网格可以[通过数据生成][datagen]。
 
-### Ingredient Types
+#### 材料类型
 
-A few additional [ingredient types][ingredients] are added to allow recipes to have inputs which check tag data or combine multiple ingredients into a single input checker.
+添加了一些额外的[材料类型][ingredients]，以使合成配方能够有检查标签数据的输入，或者将多个材料组合成一个输入检查器。
 
 [datapack]: https://minecraft.wiki/w/Data_pack
 [wiki]: https://minecraft.wiki/w/Recipe
