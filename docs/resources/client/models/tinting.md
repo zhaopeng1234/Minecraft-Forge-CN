@@ -1,31 +1,27 @@
-Coloring Textures
-=================
-
-Many blocks and items in vanilla change their texture color depending on where they are or what properties they have, such as grass. Models support specifying "tint indices" on faces, which are integers that can then be handled by `BlockColor`s and `ItemColor`s. See the [wiki][] for information on how tint indices are defined in vanilla models.
+## 纹理着色
+在原版游戏中，许多方块和物品会根据它们所处的位置或自身属性改变纹理颜色，比如草方块。模型支持在面上指定 “着色索引”，这些索引是整数，随后可由 `BlockColor` 和 `ItemColor` 处理。关于在原版模型中如何定义着色索引的信息，请参考[维基百科][wiki]。
 
 ### `BlockColor`/`ItemColor`
+这两个都是单方法接口。`BlockColor` 接收一个 `BlockState`、一个（可为空的）`BlockAndTintGetter` 以及一个（可为空的）`BlockPos`。`ItemColor` 接收一个 `ItemStack`。它们都接收一个 `int` 类型的参数 `tintIndex`，即要着色面的着色索引。它们都返回一个 `int` 类型的颜色乘数。这个 `int` 被视为 4 个无符号字节，按顺序为透明度（alpha）、红色、绿色和蓝色，从最高有效字节到最低有效字节。对于着色面上的每个像素，每个颜色通道的值为 `(int)((float) base * multiplier / 255.0)`，其中 `base` 是该通道的原始值，`multiplier` 是颜色乘数中对应的字节值。请注意，方块不使用透明度通道。例如，未着色的草纹理看起来是白色和灰色的。草的 `BlockColor` 和 `ItemColor` 返回的颜色乘数中红色和蓝色分量较低，但透明度和绿色分量较高（至少在温暖的生物群系中是这样），所以在进行乘法运算时，绿色会更突出，而红色/蓝色则会减弱。
 
-Both of these are single-method interfaces. `BlockColor` takes a `BlockState`, a (nullable) `BlockAndTintGetter`, and a (nullable) `BlockPos`. `ItemColor` takes an `ItemStack`. Both of them take an `int` parameter `tintIndex`, which is the tint index of the face being colored. Both of them return an `int`, a color multiplier. This `int` is treated as 4 unsigned bytes, alpha, red, green, and blue, in that order, from most significant byte to least. For each pixel in the tinted face, the value of each color channel is `(int)((float) base * multiplier / 255.0)`, where `base` is the original value for the channel, and `multiplier` is the associated byte from the color multiplier. Note that blocks do not use the alpha channel. For example, the grass texture, untinted, looks white and gray. The `BlockColor` and `ItemColor` for grass return color multipliers with low red and blue components, but high alpha and green components, (at least in warm biomes) so when the multiplication is performed, the green is brought out and the red/blue diminished.
+如果一个物品继承自 `builtin/generated` 模型，那么每个图层（“layer0”、“layer1” 等）都有一个与其图层索引相对应的着色索引。
 
-If an item inherits from the `builtin/generated` model, each layer ("layer0", "layer1", etc.) has a tint index corresponding to its layer index.
-
-### Creating Color Handlers
-
-`BlockColor`s need to be registered to the `BlockColors` instance of the game. `BlockColors` can be acquired through `RegisterColorHandlersEvent$Block`, and an `BlockColor` can be registered by `#register`. Note that this does not cause the `BlockItem` for the given block to be colored. `BlockItem`s are items and need to be colored with an `ItemColor`.
+### 创建颜色处理器
+`BlockColor` 需要注册到游戏的 `BlockColors` 实例中。可以通过 `RegisterColorHandlersEvent$Block` 获取 `BlockColors`，并通过 `#register` 方法注册一个 `BlockColor`。请注意，这不会导致给定方块的 `BlockItem` 被着色。`BlockItem` 属于物品，需要使用 `ItemColor` 进行着色。
 
 ```java
 @SubscribeEvent
 public void registerBlockColors(RegisterColorHandlersEvent.Block event){
-  event.register(myBlockColor, coloredBlock1, coloredBlock2, ...);
+  event.register(myBlockColor, coloredBlock1, coloredBlock2,...);
 }
 ```
 
-`ItemColor`s need to be registered to the `ItemColors` instance of the game. `ItemColors` can be acquired through `RegisterColorHandlersEvent$Item`, and an `ItemColor` can be registered by `#register`. This method is overloaded to also take `Block`s, which simply registers the color handler for the item `Block#asItem` (i.e. the block's `BlockItem`).
+`ItemColor` 需要注册到游戏的 `ItemColors` 实例中。可以通过 `RegisterColorHandlersEvent$Item` 获取 `ItemColors`，并通过 `#register` 方法注册一个 `ItemColor`。此方法有重载形式，也可以接收 `Block`，这只是为 `Block#asItem`（即方块的 `BlockItem`）注册颜色处理器。
 
 ```java
 @SubscribeEvent
 public void registerItemColors(RegisterColorHandlersEvent.Item event){
-  event.register(myItemColor, coloredItem1, coloredItem2, ...);
+  event.register(myItemColor, coloredItem1, coloredItem2,...);
 }
 ```
 
