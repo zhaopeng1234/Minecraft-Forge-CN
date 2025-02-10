@@ -1,169 +1,145 @@
-Conditionally-Loaded Data
-=========================
+## 条件加载数据
+有时，模组开发者可能希望在不将另一个模组明确设为依赖项的情况下，利用该模组的信息来包含数据驱动的对象。还有些情况是，当存在其他模组的条目时，用这些条目替换某些对象。这可以通过条件子系统来实现。
 
-There are times when modders may want to include data-driven objects using information from another mod without having to explicitly make that mod a dependency. Other cases may be to swap out certain objects with other modded entries when they are present. This can be done through the conditional subsystem.
-
-Implementations
----------------
-
-Currently, conditional loading is implemented for recipes and advancements. For any conditional recipe or advancement, a list of conditions to datum pair is loaded. If the conditions specified for a datum in the list is true, then that datum is returned. Otherwise, the datum is discarded.
+### 实现方式
+目前，条件加载功能已应用于合成配方和进度系统。对于任何条件式的合成配方或进度，会加载一个条件与数据的配对列表。如果列表中某个数据对应的条件为真，则返回该数据；否则，丢弃该数据。
 
 ```js
 {
-  // The type needs to be specified for recipes as they can have custom serializers
-  // Advancements do not need this type
+  // 对于合成配方，需要指定类型，因为它们可能有自定义序列化器
+  // 进度系统不需要此类型
   "type": "forge:conditional",
   
-  "recipes": [ // Or 'advancements' for Advancements
+  "recipes": [ // 如果是进度系统，则为 'advancements'
     {
-      // The conditions to check
+      // 要检查的条件
       "conditions": [
-        // Conditions in the list are ANDed together
+        // 列表中的条件是逻辑与关系
         {
-          // Condition 1
+          // 条件 1
         },
         {
-          // Condition 2
+          // 条件 2
         }
       ],
-      "recipe": { // Or 'advancement' for Advancements
-        // The recipe to use if all conditions succeed
+      "recipe": { // 如果是进度系统，则为 'advancement'
+        // 如果所有条件都满足，则使用此合成配方
       }
     },
     {
-      // Next condition to check if the previous fails
-    },
+      // 如果前一个条件失败，则检查下一个条件
+    }
   ]
 }
 ```
+条件加载的数据还可以通过 `ConditionalRecipe$Builder` 和 `ConditionalAdvancement$Builder` 进行[数据生成][datagen]。
 
-Conditionally-loaded data additionally have wrappers for [data generation][datagen] through `ConditionalRecipe$Builder` and `ConditionalAdvancement$Builder`.
+### 条件类型
+通过将 `type` 设置为由 [`IConditionSerializer#getID`][serializer] 指定的条件名称来指定条件。
 
-Conditions
-----------
-
-Conditions are specified by setting `type` to the name of the condition as specified by [`IConditionSerializer#getID`][serializer].
-
-### True and False
-
-Boolean conditions consist of no data and return the expected value of the condition. They are represented by `forge:true` and `forge:false`.
-
+#### 真和假
+布尔条件不包含数据，直接返回条件的预期值。它们分别用 `forge:true` 和 `forge:false` 表示。
 ```js
-// For some condition
+// 对于某个条件
 {
-  // Will always return true (or false for 'forge:false')
+  // 始终返回 true（如果是 'forge:false' 则返回 false）
   "type": "forge:true"
 }
 ```
 
-### Not, And, and Or
-
-Boolean operator conditions consist of the condition(s) being operated upon and apply the following logic. They are represented by `forge:not`, `forge:and`, and `forge:or`.
-
-
+#### 非、与和或
+布尔运算符条件包含要操作的条件，并应用相应的逻辑。它们分别用 `forge:not`、`forge:and` 和 `forge:or` 表示。
 ```js
-// For some condition
+// 对于某个条件
 {
-  // Inverts the result of the stored condition
+  // 反转存储条件的结果
   "type": "forge:not",
   "value": {
-    // A condition
+    // 一个条件
   }
 }
 ```
-
 ```js
-// For some condition
+// 对于某个条件
 {
-  // ANDs the stored conditions together (or ORs for 'forge:or')
+  // 将存储的条件进行逻辑与运算（如果是 'forge:or' 则进行逻辑或运算）
   "type": "forge:and",
   "values": [
     {
-      // First condition
+      // 第一个条件
     },
     {
-      // Second condition to be ANDed (or ORed for 'forge:or')
+      // 第二个要进行逻辑与运算的条件（如果是 'forge:or' 则进行逻辑或运算）
     }
   ]
 }
 ```
 
-### Mod Loaded
-
-`ModLoadedCondition` returns true whenever the specified mod with the given id is loaded in the current application. This is represented by `forge:mod_loaded`.
-
+#### 模组已加载
+`ModLoadedCondition` 在当前应用程序中加载了指定 ID 的模组时返回 true。用 `forge:mod_loaded` 表示。
 ```js
-// For some condition
+// 对于某个条件
 {
   "type": "forge:mod_loaded",
-   // Returns true if 'examplemod' is loaded
+  // 如果 'examplemod' 已加载，则返回 true
   "modid": "examplemod"
 }
 ```
 
-### Item Exists
-
-`ItemExistsCondition` returns true whenever the given item has been registered in the current application. This is represented by `forge:item_exists`.
-
+#### 物品已注册
+`ItemExistsCondition` 在当前应用程序中注册了指定物品时返回 true。用 `forge:item_exists` 表示。
 ```js
-// For some condition
+// 对于某个条件
 {
   "type": "forge:item_exists",
-   // Returns true if 'examplemod:example_item' has been registered
+  // 如果 'examplemod:example_item' 已注册，则返回 true
   "item": "examplemod:example_item"
 }
 ```
 
-### Tag Empty
-
-`TagEmptyCondition` returns true whenever the given item tag has no items within it. This is represented by `forge:tag_empty`.
-
+#### 标签为空
+`TagEmptyCondition` 在指定的物品标签中没有物品时返回 true。用 `forge:tag_empty` 表示。
 ```js
-// For some condition
+// 对于某个条件
 {
   "type": "forge:tag_empty",
-   // Returns true if 'examplemod:example_tag' is an item tag with no entries
+  // 如果 'examplemod:example_tag' 是一个没有条目的物品标签，则返回 true
   "tag": "examplemod:example_tag"
 }
 ```
 
-Creating Custom Conditions
---------------------------
+### 创建自定义条件
+可以通过实现 `ICondition` 及其关联的 `IConditionSerializer` 来创建自定义条件。
 
-Custom conditions can be created by implementing `ICondition` and its associated `IConditionSerializer`.
+#### ICondition
+任何条件只需要实现两个方法：
 
-### ICondition
+| 方法 | 描述 |
+| :---: | :--- |
+| `getID` | 条件的注册名称。必须与 [`IConditionSerializer#getID`][serializer] 相同。仅用于[数据生成][datagen]。 |
+| `test` | 如果条件满足，则返回 true。 |
 
-Any condition only need to implement two methods:
+!!! 注意
+    每个 `#test` 方法都可以访问一个表示游戏状态的 `IContext` 对象。目前，只能从注册表中获取标签。
 
-Method | Description
-:---:  | :---
-getID  | The registry name of the condition. Must be equivalent to [`IConditionSerializer#getID`][serializer]. Used only for [data generation][datagen].
-test   | Returns true if the condition has been satisfied.
+#### IConditionSerializer
+序列化器需要实现三个方法：
 
-!!! note
-    Every `#test` has access to some `IContext` representing the state of the game. Currently, only tags can be obtained from a registry.
+| 方法 | 描述 |
+| :---: | :--- |
+| `getID` | 条件的注册名称。必须与 [`ICondition#getID`][condition] 相同。 |
+| `read` | 从 JSON 中读取条件数据。 |
+| `write` | 将给定的条件数据写入 JSON。 |
 
-### IConditionSerializer
+!!! 注意
+    与 Minecraft 中的其他序列化器实现类似，条件序列化器不负责写入或读取序列化器的类型。
 
-Serializers need to implement three methods:
-
-Method | Description
-:---:  | :---
-getID  | The registry name of the condition. Must be equivalent to [`ICondition#getID`][condition].
-read   | Reads the condition data from JSON.
-write  | Writes the given condition data to JSON.
-
-!!! note
-    Condition serializers are not responsible for writing or reading the type of the serializer, similar to other serializer implementations in Minecraft.
-
-Afterwards, a static instance should be declared to hold the initialized serializer and then registered using `CraftingHelper#register` either during the `RegisterEvent` for `RecipeSerializer`s or during `FMLCommonSetupEvent`.
-
+之后，应声明一个静态实例来保存初始化的序列化器，然后在 `RecipeSerializer` 的 `RegisterEvent` 期间或 `FMLCommonSetupEvent` 期间使用 `CraftingHelper#register` 进行注册。
 ```java
-// In some serializer class
+// 在某个序列化器类中
 public static final ExampleConditionSerializer INSTANCE = new ExampleConditionSerializer();
 
-// In some handler class
+// 在某个处理类中
 public void registerSerializers(RegisterEvent event) {
   event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS,
     helper -> CraftingHelper.register(INSTANCE)
@@ -171,8 +147,8 @@ public void registerSerializers(RegisterEvent event) {
 }
 ```
 
-!!! important
-    If using `FMLCommonSetupEvent` to register a condition serializer, it must be enqueued to the synchronous work queue via `FMLCommonSetupEvent#enqueueWork` as `CraftingHelper#register` is not thread-safe.
+!!! 重要
+    如果使用 `FMLCommonSetupEvent` 来注册条件序列化器，由于 `CraftingHelper#register` 不是线程安全的，必须通过 `FMLCommonSetupEvent#enqueueWork` 将其加入同步工作队列。
 
 [datagen]: ../../datagen/server/recipes.md
 [serializer]: #iconditionserializer
