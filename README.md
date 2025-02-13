@@ -74,19 +74,19 @@
       - [标签](/docs/resources/server/tags.md)
       - [进度系统](/docs/resources/server/advancements.md)
       - [条件加载数据](/docs/resources/server/conditional.md)
-* ### Data Generation:
-    * [Introduction](/docs/datagen/index.md)
-    * #### Client Assets:
-      - [Model Providers](/docs/datagen/client/modelproviders.md)
-      - [Language Providers](/docs/datagen/client/localization.md)
-      - [Sound Providers](/docs/datagen/client/sounds.md)
-    * #### Server Data:
-      - [Recipe Providers](/docs/datagen/server/recipes.md)
-      - [Loot Table Providers](/docs/datagen/server/loottables.md)
-      - [Tag Providers](/docs/datagen/server/tags.md)
-      - [Advancement Providers](/docs/datagen/server/advancements.md)
-      - [Global Loot Modifier Providers](/docs/datagen/server/glm.md)
-      - [Datapack Registry Object Providers](/docs/datagen/server/datapackregistries.md)
+* ### 数据生成器:
+    * [介绍](/docs/datagen/index.md)
+    * #### 客户端资产:
+      - [模型提供者](/docs/datagen/client/modelproviders.md)
+      - [语言提供者](/docs/datagen/client/localization.md)
+      - [声音提供者](/docs/datagen/client/sounds.md)
+    * #### 服务器数据:
+      - [配方提供者](/docs/datagen/server/recipes.md)
+      - [战利品表表提供者](/docs/datagen/server/loottables.md)
+      - [标签提供者](/docs/datagen/server/tags.md)
+      - [进度提供者](/docs/datagen/server/advancements.md)
+      - [全局战利品修饰符提供者](/docs/datagen/server/glm.md)
+      - [数据包注册表对象提供者](/docs/datagen/server/datapackregistries.md)
 * ### Miscellaneous Features:
     - [Configuration](/docs/misc/config.md)
     - [Key Mappings](/docs/misc/keymappings.md)
