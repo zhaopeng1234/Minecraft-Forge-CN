@@ -1,37 +1,33 @@
-Language Generation
-===================
-
-[Language files][lang] can be generated for a mod by subclassing `LanguageProvider` and implementing `#addTranslations`. Each `LanguageProvider` subclass created represents a separate [locale] (`en_us` represents American English, `es_es` represents Spanish, etc.). After implementation, the provider must be [added][datagen] to the `DataGenerator`.
+### 语言文件生成
+通过继承 `LanguageProvider` 并实现 `#addTranslations` 方法，可以为模组生成[语言文件][lang]。创建的每个 `LanguageProvider` 子类代表一个单独的[语言环境]（例如 `en_us` 代表美式英语，`es_es` 代表西班牙语等）。实现之后，必须将该提供者 [添加][datagen] 到 `DataGenerator` 中。
 
 ```java
-// On the MOD event bus
+// 在 MOD 事件总线上
 @SubscribeEvent
 public void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
-        // Tell generator to run only when client assets are generating
+        // 告诉生成器仅在生成客户端资源时运行
         event.includeClient(),
-        // Localizations for American English
+        // 美式英语的本地化
         output -> new MyLanguageProvider(output, MOD_ID, "en_us")
     );
 }
 ```
 
-`LanguageProvider`
-------------------
-
-Each language provider is simple a map of strings where each translation key is mapped to a localized name. A translation key mapping can be added using `#add`. Additionally, there are methods which use the translation key of a `Block`, `Item`, `ItemStack`, `Enchantment`, `MobEffect`, and `EntityType`.
+### `LanguageProvider`
+每个语言提供者本质上是一个字符串映射，其中每个翻译键都映射到一个本地化名称。可以使用 `#add` 方法添加翻译键映射。此外，还有一些方法可使用 `Block`、`Item`、`ItemStack`、`Enchantment`、`MobEffect` 和 `EntityType` 的翻译键。
 
 ```java
-// In LanguageProvider#addTranslations
+// 在 LanguageProvider#addTranslations 方法中
 this.addBlock(EXAMPLE_BLOCK, "Example Block");
 this.add("object.examplemod.example_object", "Example Object");
 ```
 
-!!! tip
-    Localized names which contain alphanumeric values not in American English can be supplied as is. The provider automatically translates the characters into their unicode equivalents to be read by the game.
+!!! 提示
+    包含非美式英语字母数字值的本地化名称可以直接提供。提供者会自动将这些字符转换为其对应的 Unicode 形式，以便游戏读取。
 
     ```java
-    // Encdoded as 'Example with a d\u00EDacritic'
+    // 编码为 'Example with a d\u00EDacritic'
     this.addItem("example.diacritic", "Example with a díacritic");
     ```
 
