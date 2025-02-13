@@ -1,143 +1,128 @@
-Loot Table Generation
-=====================
-
-[Loot tables][loottable] can be generated for a mod by constructing a new `LootTableProvider` and providing `LootTableProvider$SubProviderEntry`s. The provider must be [added][datagen] to the `DataGenerator`.
+### 战利品表生成
+通过构建一个新的 `LootTableProvider` 并提供 `LootTableProvider$SubProviderEntry`，可以为模组生成[战利品表][loottable]。该提供者必须 [添加][datagen] 到 `DataGenerator` 中。
 
 ```java
-// On the MOD event bus
+// 在 MOD 事件总线上
 @SubscribeEvent
 public void gatherData(GatherDataEvent event) {
     event.getGenerator().addProvider(
-        // Tell generator to run only when server data are generating
+        // 告诉生成器仅在生成服务器数据时运行
         event.includeServer(),
         output -> new MyLootTableProvider(
           output,
-          // Specify registry names of tables that are required to generate, or can leave empty
+          // 指定生成所需的表的注册表名称，也可以留空
           Collections.emptySet(),
-          // Sub providers which generate the loot
+          // 生成战利品的子提供者
           List.of(subProvider1, subProvider2, /*...*/)
         )
     );
 }
 ```
 
-`LootTableSubProvider`
-----------------------
-
-Each `LootTableProvider$SubProviderEntry` takes in a supplied `LootTableSubProvider`, which generates the loot table, for a given `LootContextParamSet`. The `LootTableSubProvider` contains a method which takes in the writer (`BiConsumer<ResourceLocation, LootTable.Builder>`) to generate a table.
+### `LootTableSubProvider`
+每个 `LootTableProvider$SubProviderEntry` 接受一个提供的 `LootTableSubProvider`，该 `LootTableSubProvider` 为给定的 `LootContextParamSet` 生成战利品表。`LootTableSubProvider` 包含一个方法，该方法接受写入器（`BiConsumer<ResourceLocation, LootTable.Builder>`）以生成表。
 
 ```java
 public class ExampleSubProvider implements LootTableSubProvider {
 
-  // Used to create a factory method for the wrapping Supplier
+  // 用于为包装的 Supplier 创建工厂方法
   public ExampleSubProvider() {}
 
-  // The method used to generate the loot tables
+  // 用于生成战利品表的方法
   @Override
   public void generate(BiConsumer<ResourceLocation, LootTable.Builder> writer) {
-    // Generate loot tables here by calling writer#accept
+    // 通过调用 writer#accept 在此处生成战利品表
   }
 }
 ```
 
-The table can then be added to `LootTableProvider#getTables` for any available `LootContextParamSet`:
+然后，可以将该表添加到 `LootTableProvider#getTables` 中，以用于任何可用的 `LootContextParamSet`：
 
 ```java
-// In the list passed into the LootTableProvider constructor
+// 在传递给 LootTableProvider 构造函数的列表中
 new LootTableProvider.SubProviderEntry(
   ExampleSubProvider::new,
-  // Loot table generator for the 'empty' param set
+  // 为 'empty' 参数集生成战利品表
   LootContextParamSets.EMPTY
 )
 ```
 
-### `BlockLootSubProvider` and `EntityLootSubProvider` Subclasses
+#### `BlockLootSubProvider` 和 `EntityLootSubProvider` 子类
+对于 `LootContextParamSets#BLOCK` 和 `#ENTITY`，有特殊类型（分别为 `BlockLootSubProvider` 和 `EntityLootSubProvider`），它们提供了额外的辅助方法，用于创建和验证是否存在战利品表。
 
-For `LootContextParamSets#BLOCK` and `#ENTITY`, there are special types (`BlockLootSubProvider` and `EntityLootSubProvider` respectively) which provide additional helper methods for creating and validating that there are loot tables.
-
-The `BlockLootSubProvider`'s constructor takes in a list of items, which are explosion resistant to determine whether the loot table can be generated if a block is exploded, and a `FeatureFlagSet`, which determines whether the block is enabled so that a loot table is generated for it.
+`BlockLootSubProvider` 的构造函数接受一个物品列表，这些物品具有抗爆炸属性，用于确定如果方块被炸掉是否可以生成战利品表；还接受一个 `FeatureFlagSet`，用于确定方块是否启用，以便为其生成战利品表。
 
 ```java
-// In some BlockLootSubProvider subclass
+// 在某个 BlockLootSubProvider 子类中
 public MyBlockLootSubProvider() {
   super(Collections.emptySet(), FeatureFlags.REGISTRY.allFlags());
 }
 ```
 
-The `EntityLootSubProvider`'s constructor takes in a `FeatureFlagSet`, which determines whether the entity type is enabled so that a loot table is generated for it.
+`EntityLootSubProvider` 的构造函数接受一个 `FeatureFlagSet`，用于确定实体类型是否启用，以便为其生成战利品表。
 
 ```java
-// In some EntityLootSubProvider subclass
+// 在某个 EntityLootSubProvider 子类中
 public MyEntityLootSubProvider() {
   super(FeatureFlags.REGISTRY.allFlags());
 }
 ```
 
-To use them, all registered objects must be supplied to either `BlockLootSubProvider#getKnownBlocks` and `EntityLootSubProvider#getKnownEntityTypes` respectively. These methods are to make sure all objects within the iterable has a loot table.
+要使用它们，必须将所有已注册的对象分别提供给 `BlockLootSubProvider#getKnownBlocks` 和 `EntityLootSubProvider#getKnownEntityTypes`。这些方法是为了确保可迭代对象中的所有对象都有一个战利品表。
 
-!!! tip
-    If `DeferredRegister` is being used to register a mod's objects, then the `#getKnown*` methods can be supplied the entries via `DeferredRegister#getEntries`:
+!!! 提示
+    如果使用 `DeferredRegister` 来注册模组的对象，那么可以通过 `DeferredRegister#getEntries` 将条目提供给 `#getKnown*` 方法：
 
     ```java
-    // In some BlockLootSubProvider subclass for some DeferredRegister BLOCK_REGISTRAR
+    // 在某个 BlockLootSubProvider 子类中，针对某个 DeferredRegister BLOCK_REGISTRAR
     @Override
     protected Iterable<Block> getKnownBlocks() {
-      return BLOCK_REGISTRAR.getEntries() // Get all registered entries
-        .stream() // Stream the wrapped objects
-        .flatMap(RegistryObject::stream) // Get the object if available
-        ::iterator; // Create the iterable
+      return BLOCK_REGISTRAR.getEntries() // 获取所有已注册的条目
+        .stream() // 对流包装的对象
+        .flatMap(RegistryObject::stream) // 如果可用，获取对象
+        ::iterator; // 创建可迭代对象
     }
     ```
 
-The loot tables themselves can be added by implementing the `#generate` method.
+可以通过实现 `#generate` 方法来添加战利品表本身。
 
 ```java
-// In some BlockLootSubProvider subclass
+// 在某个 BlockLootSubProvider 子类中
 @Override
 public void generate() {
-  // Add loot tables here
+  // 在此处添加战利品表
 }
 ```
 
-Loot Table Builders
--------------------
+### 战利品表构建器
+为了生成战利品表，`LootTableSubProvider` 接受它们作为 `LootTable$Builder`。然后，在 `LootTableProvider$SubProviderEntry` 中设置指定的 `LootContextParamSet`，并通过 `#build` 方法构建。在构建之前，构建器可以指定条目、条件和修饰符，这些会影响战利品表的功能。
 
-To generate loot tables, they are accepted by the `LootTableSubProvider` as a `LootTable$Builder`. Afterwards, the specified `LootContextParamSet` is set in the `LootTableProvider$SubProviderEntry` and then built via `#build`. Before being built, the builder can specify entries, conditions, and modifiers which affect how the loot table functions.
+!!! 注意
+    战利品表的功能非常广泛，本文档不会全面涵盖。相反，将简要介绍每个组件。每个组件的具体子类型可以使用 IDE 找到。它们的实现将留给读者作为练习。
 
-!!! note
-    The functionality of loot tables is so expansive that it will not be covered by this documentation in its entirety. Instead, a brief description of each component will be mentioned. The specific subtypes of each component can be found using an IDE. Their implementations will be left as an exercise to the reader.
+#### LootTable
+战利品表是基础对象，可以使用 `LootTable#lootTable` 将其转换为所需的 `LootTable$Builder`。战利品表可以使用指定顺序应用的池列表（通过 `#withPool`）以及函数（通过 `#apply`）来构建，以修改这些池的结果物品。
 
-### LootTable
+#### LootPool
+战利品池表示一组操作，可以使用 `LootPool#lootPool` 生成 `LootPool$Builder`。每个战利品池可以指定条目（通过 `#add`），这些条目定义了池中要执行的操作；条件（通过 `#when`），这些条件定义了是否应该执行池中操作；以及函数（通过 `#apply`），用于修改条目的结果物品。每个池可以按照指定的次数执行（通过 `#setRolls`）。此外，可以指定额外执行次数（通过 `#setBonusRolls`），这会受到执行者运气的影响。
 
-Loot tables are the base object and can be transformed into the required `LootTable$Builder` using `LootTable#lootTable`. The loot table can be built with a list of pools (via `#withPool`) applied in the order they are specified along with functions (via `#apply`) to modify the resulting items of those pools.
+#### LootPoolEntryContainer
+战利品条目定义了被选中时要执行的操作，通常是生成物品。每个条目都有一个关联的、[已注册] `LootPoolEntryType`。它们也有自己关联的构建器，这些构建器继承自 `LootPoolEntryContainer$Builder`。多个条目可以同时执行（通过 `#append`），或者按顺序执行，直到有一个失败（通过 `#then`）。此外，条目在失败时可以默认执行另一个条目（通过 `#otherwise`）。
 
-### LootPool
+#### LootItemCondition
+战利品条件定义了某些操作执行所需满足的要求。每个条件都有一个关联的、[已注册] `LootItemConditionType`。它们也有自己关联的构建器，这些构建器继承自 `LootItemCondition$Builder`。默认情况下，指定的所有战利品条件都必须返回 `true`，操作才能执行。也可以指定战利品条件，使得只有一个条件返回 `true` 即可（通过 `#or`）。此外，条件的结果输出可以反转（通过 `#invert`）。
 
-Loot pools represents a group to perform operations and can generate a  `LootPool$Builder` using `LootPool#lootPool`. Each loot pool can specify the entries (via `#add`) which define the operations in the pool, the conditions (via `#when`) which define if the operations in the pool should be performed, and functions (via `#apply`) to modify the resulting items of the entries. Each pool can be executed as many times as specified (via `#setRolls`). Additionally, bonus executions can be specified (via `#setBonusRolls`) which is modified by the luck of the executor.
+#### LootItemFunction
+战利品函数在将执行结果传递到输出之前对其进行修改。每个函数都有一个关联的、[已注册] `LootItemFunctionType`。它们也有自己关联的构建器，这些构建器继承自 `LootItemFunction$Builder`。
 
-### LootPoolEntryContainer
+##### NbtProvider
+NBT 提供者是由 `CopyNbtFunction` 定义的一种特殊类型的函数。它们定义了从哪里获取标签信息。每个提供者都有一个关联的、[已注册] `LootNbtProviderType`。
 
-Loot entries define the operations to occur when selected, typically generating items. Each entry has an associated, [registered] `LootPoolEntryType`. They also have their own associated builders which subtype `LootPoolEntryContainer$Builder`. Multiple entries can execute at the same time (via `#append`) or sequentially until one fails (via `#then`). Additionally, entries can default to another entry on failure (via `#otherwise`).
+#### NumberProvider
+数字提供者确定战利品池执行的次数。每个提供者都有一个关联的、[已注册] `LootNumberProviderType`。
 
-### LootItemCondition
-
-Loot conditions define requirements which need to be met for some operation to execute. Each condition has an associated, [registered] `LootItemConditionType`. They also have their own associated builders which subtype `LootItemCondition$Builder`. By default, all loot conditions specified must return true for an operation to execute. Loot conditions can also be specified such that only one must return true instead (via `#or`). Additionally, the resulting output of a condition can be inverted (via `#invert`).
-
-### LootItemFunction
-
-Loot functions modify the result of an execution before passing it to the output. Each function has an associated, [registered] `LootItemFunctionType`. They also have their own associated builders which subtype `LootItemFunction$Builder`.
-
-#### NbtProvider
-
-NBT providers are a special type of functions defined by `CopyNbtFunction`. They define where to pull tag information from. Each provider has an associated, [registered] `LootNbtProviderType`.
-
-### NumberProvider
-
-Number providers determine how many times a loot pool executes. Each provider has an associated, [registered] `LootNumberProviderType`.
-
-#### ScoreboardNameProvider
-
-Scoreboard providers are a special type of number providers defined by `ScoreboardValue`. They define the name of the scoreboard to pull the number of rolls to execute from. Each provider has an associated, [registered] `LootScoreProviderType`.
+##### ScoreboardNameProvider
+计分板提供者是由 `ScoreboardValue` 定义的一种特殊类型的数字提供者。它们定义了从哪个计分板获取要执行的滚动次数。每个提供者都有一个关联的、[已注册] `LootScoreProviderType`。
 
 [loottable]: ../../resources/server/loottables.md
 [datagen]: ../index.md#data-providers
