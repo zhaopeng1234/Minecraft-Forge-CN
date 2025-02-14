@@ -87,17 +87,17 @@
       - [进度提供者](/docs/datagen/server/advancements.md)
       - [全局战利品修饰符提供者](/docs/datagen/server/glm.md)
       - [数据包注册表对象提供者](/docs/datagen/server/datapackregistries.md)
-* ### Miscellaneous Features:
-    - [Configuration](/docs/misc/config.md)
-    - [Key Mappings](/docs/misc/keymappings.md)
-    - [Game Tests](/docs/misc/gametest.md)
-    - [Forge Update Checker](/docs/misc/updatechecker.md)
-    - [Debug Profiler](/docs/misc/debugprofiler.md)
-* ### Advanced Topics:
-    - [Access Transformers](/docs/advanced/accesstransformers.md)
-* ### Contributing to Forge:
-    - [Introduction](/docs/forgedev/index.md)
-    - [Pull Request Guidelines](/docs/forgedev/prguidelines.md)
-* ### Legacy Versions:
-    - [Introduction](/docs/legacy/index.md)
-    - [Porting to This Version](/docs/legacy/porting.md)
+* ### 其他功能:
+    - [配置](/docs/misc/config.md)
+    - [按键映射](/docs/misc/keymappings.md)
+    - [游戏测试](/docs/misc/gametest.md)
+    - [Forge更新检查器](/docs/misc/updatechecker.md)
+    - [调试分析器](/docs/misc/debugprofiler.md)
+* ### 高级话题:
+    - [访问转换器](/docs/advanced/accesstransformers.md)
+* ### 给Forge做出贡献:
+    - [介绍](/docs/forgedev/index.md)
+    - [Pull Request指南](/docs/forgedev/prguidelines.md)
+* ### 旧版本:
+    - [介绍](/docs/legacy/index.md)
+    - [迁移到此版本](/docs/legacy/porting.md)
