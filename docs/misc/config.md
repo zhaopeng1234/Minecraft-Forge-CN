@@ -1,133 +1,121 @@
-Configuration
-=============
+### 配置系统概述
+配置用于定义可应用于模组实例的设置和用户偏好。Forge 使用基于 [TOML][toml] 文件的配置系统，并通过 [NightConfig][nightconfig] 进行读取。
 
-Configurations define settings and consumer preferences that can be applied to a mod instance. Forge uses a configuration system using [TOML][toml] files and read with [NightConfig][nightconfig].
+### 创建配置
+可以通过 `IConfigSpec` 的子类型来创建配置。Forge 通过 `ForgeConfigSpec` 实现了该类型，并通过 `ForgeConfigSpec$Builder` 来构建配置。构建器可以使用 `Builder#push` 创建一个配置节，使用 `Builder#pop` 离开一个配置节。之后，可以使用以下两种方法之一构建配置：
 
-Creating a Configuration
-------------------------
+| 方法 | 描述 |
+| :--- | :--- |
+| `build` | 创建 `ForgeConfigSpec`。 |
+| `configure` | 创建一个包含配置值的类和 `ForgeConfigSpec` 的对。 |
 
-A configuration can be created using a subtype of `IConfigSpec`. Forge implements the type via `ForgeConfigSpec` and enables its construction through `ForgeConfigSpec$Builder`. The builder can separate the config values into sections via `Builder#push` to create a section and `Builder#pop` to leave a section. Afterwards, the configuration can be built using one of two methods:
-
- Method     | Description
- :---       | :---
-`build`     | Creates the `ForgeConfigSpec`.
-`configure` | Creates a pair of the class holding the config values and the `ForgeConfigSpec`.
-
-!!! note
-    `ForgeConfigSpec$Builder#configure` is typically used with a `static` block and a class that takes in `ForgeConfigSpec$Builder` as part of its constructor to attach and hold the values:
+!!! 注意
+    `ForgeConfigSpec$Builder#configure` 通常与 `static` 块和一个将 `ForgeConfigSpec$Builder` 作为构造函数参数的类一起使用，以附加和保存配置值：
 
     ```java
-    // In some config class
+    // 在某个配置类中
     ExampleConfig(ForgeConfigSpec.Builder builder) {
-      // Define values here in final fields
+      // 在 final 字段中定义值
     }
 
-    // Somewhere the constructor is accessible
+    // 在构造函数可访问的地方
     static {
       Pair<ExampleConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
         .configure(ExampleConfig::new);
-      // Store pair values in some constant field
+      // 将对的值存储在某个常量字段中
     }
     ```
 
-Each config value can be supplied with additional context to provide additional behavior. Contexts must be defined before the config value is fully built:
+每个配置值都可以提供额外的上下文来实现额外的行为。上下文必须在配置值完全构建之前定义：
 
-Method       | Description
-:---         | :---
-`comment`      | Provides a description of what the config value does. Can provide multiple strings for a multiline comment.
-`translation`  | Provides a translation key for the name of the config value.
-`worldRestart` | The world must be restarted before the config value can be changed.
+| 方法 | 描述 |
+| :--- | :--- |
+| `comment` | 提供配置值功能的描述。可以提供多个字符串以实现多行注释。 |
+| `translation` | 为配置值的名称提供翻译键。 |
+| `worldRestart` | 更改此配置值前必须重启世界。 |
 
-### ConfigValue
+#### ConfigValue
+可以使用任何 `#define` 方法结合已定义的上下文来构建配置值。
 
-Config values can be built with the provided contexts (if defined) using any of the `#define` methods.
+所有配置值方法至少接受两个组件：
+- 表示变量名称的路径：一个用 `.` 分隔的字符串，表示配置值所在的节。
+- 当没有有效配置时的默认值。
 
-All config value methods take in at least two components:
-
-* A path representing the name of the variable: a `.` separated string representing the sections the config value is in
-* The default value when no valid configuration is present
-
-The `ConfigValue` specific methods take in two additional components:
-
-* A validator to make sure the deserialized object is valid
-* A class representing the data type of the config value
+`ConfigValue` 特定的方法还接受两个额外的组件：
+- 一个验证器，用于确保反序列化的对象有效。
+- 一个表示配置值数据类型的类。
 
 ```java
-// For some ForgeConfigSpec$Builder builder
+// 对于某个 ForgeConfigSpec$Builder builder
 ConfigValue<T> value = builder.comment("Comment")
   .define("config_value_name", defaultValue);
 ```
 
-The values themselves can be obtained using `ConfigValue#get`. The values are additionally cached to prevent multiple readings from files.
+可以使用 `ConfigValue#get` 获取配置值本身。这些值会被缓存，以避免多次从文件中读取。
 
-#### Additional Config Value Types
+#### 其他配置值类型
+- **范围值**
+    - 描述：值必须在定义的边界之间。
+    - 类类型：`Comparable<T>`
+    - 方法名称：`#defineInRange`
+    - 额外组件：
+        - 配置值的最小值和最大值。
+        - 一个表示配置值数据类型的类。
 
-* **Range Values**
-    * Description: Value must be between the defined bounds
-    * Class Type: `Comparable<T>`
-    * Method Name: `#defineInRange`
-    * Additional Components:
-      * The minimum and maximum the config value may be
-      * A class representing the data type of the config value
+!!! 注意
+    `DoubleValue`、`IntValue` 和 `LongValue` 是范围值，分别指定类为 `Double`、`Integer` 和 `Long`。
 
-!!! note
-    `DoubleValue`s, `IntValue`s, and `LongValue`s are range values which specify the class as `Double`, `Integer`, and `Long` respectively.
+- **白名单值**
+    - 描述：值必须在提供的集合中。
+    - 类类型：`T`
+    - 方法名称：`#defineInList`
+    - 额外组件：
+        - 一个包含配置允许值的集合。
 
-* **Whitelisted Values**
-    * Description: Value must be in supplied collection
-    * Class Type: `T`
-    * Method Name: `#defineInList`
-    * Additional Components:
-      * A collection of the allowed values the configuration can be
+- **列表值**
+    - 描述：值是一个条目列表。
+    - 类类型：`List<T>`
+    - 方法名称：`#defineList`，如果列表可以为空则使用 `#defineListAllowEmpty`
+    - 额外组件：
+        - 一个验证器，用于确保从列表中反序列化的元素有效。
 
-* **List Values**
-    * Description: Value is a list of entries
-    * Class Type: `List<T>`
-    * Method Name: `#defineList`, `#defineListAllowEmpty` if list can be empty
-    * Additional Components:
-      * A validator to make sure a deserialized element from the list is valid
+- **枚举值**
+    - 描述：提供集合中的一个枚举值。
+    - 类类型：`Enum<T>`
+    - 方法名称：`#defineEnum`
+    - 额外组件：
+        - 一个将字符串或整数转换为枚举的获取器。
+        - 一个包含配置允许值的集合。
 
-* **Enum Values**
-    * Description: An enum value in the supplied collection
-    * Class Type: `Enum<T>`
-    * Method Name: `#defineEnum`
-    * Additional Components:
-      * A getter to convert a string or integer into an enum
-      * A collection of the allowed values the configuration can be
+- **布尔值**
+    - 描述：一个 `boolean` 值。
+    - 类类型：`Boolean`
+    - 方法名称：`#define`
 
-* **Boolean Values**
-    * Description: A `boolean` value
-    * Class Type: `Boolean`
-    * Method Name: `#define`
-
-Registering a Configuration
----------------------------
-
-Once a `ForgeConfigSpec` has been built, it must be registered to allow Forge to load, track, and sync the configuration settings as required. Configurations should be registered in the mod constructor via `ModLoadingContext#registerConfig`. A configuration can be registered with a given type representing the side the config belongs to, the `ForgeConfigSpec`, and optionally a specific file name for the configuration.
+### 注册配置
+一旦构建了 `ForgeConfigSpec`，就必须进行注册，以便 Forge 可以根据需要加载、跟踪和同步配置设置。配置应在模组构造函数中通过 `ModLoadingContext#registerConfig` 进行注册。可以使用给定的类型（表示配置所属的端）、`ForgeConfigSpec` 以及可选的特定配置文件名来注册配置。
 
 ```java
-// In the mod constructor with a ForgeConfigSpec CONFIG
+// 在模组构造函数中，使用 ForgeConfigSpec CONFIG
 ModLoadingContext.get().registerConfig(Type.COMMON, CONFIG);
 ```
 
-Here is a list of the available configuration types:
+以下是可用的配置类型列表：
 
-Type   | Loaded           | Synced to Client | Client Location                              | Server Location                      | Default File Suffix
-:---:  | :---:            | :---:            | :---:                                        | :---:                                | :---
-CLIENT | Client Side Only | No               | `.minecraft/config`                          | N/A                                  | `-client`
-COMMON | On Both Sides    | No               | `.minecraft/config`                          | `<server_folder>/config`             | `-common`
-SERVER | Server Side Only | Yes              | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server`
+| 类型 | 加载位置 | 是否同步到客户端 | 客户端位置 | 服务器位置 | 默认文件后缀 |
+| :---: | :---: | :---: | :---: | :---: | :--- |
+| CLIENT | 仅客户端 | 否 | `.minecraft/config` | N/A | `-client` |
+| COMMON | 两端 | 否 | `.minecraft/config` | `<server_folder>/config` | `-common` |
+| SERVER | 仅服务器 | 是 | `.minecraft/saves/<level_name>/serverconfig` | `<server_folder>/world/serverconfig` | `-server` |
 
-!!! tip
-    Forge documents the [config types][type] within their codebase.
+!!! 提示
+    Forge 在其代码库中记录了 [配置类型][type]。
 
-Configuration Events
---------------------
+### 配置事件
+可以使用 `ModConfigEvent$Loading` 和 `ModConfigEvent$Reloading` 事件来执行每次加载或重新加载配置时发生的操作。这些事件必须 [注册][events] 到模组事件总线。
 
-Operations that occur whenever a config is loaded or reloaded can be done using the `ModConfigEvent$Loading` and `ModConfigEvent$Reloading` events. The events must be [registered][events] to the mod event bus.
-
-!!! warning
-    These events are called for all configurations for the mod; the `ModConfig` object provided should be used to denote which configuration is being loaded or reloaded.
+!!! 警告
+    这些事件会为模组的所有配置调用；应使用提供的 `ModConfig` 对象来表示正在加载或重新加载的配置。
 
 [toml]: https://toml.io/
 [nightconfig]: https://github.com/TheElectronWill/night-config
