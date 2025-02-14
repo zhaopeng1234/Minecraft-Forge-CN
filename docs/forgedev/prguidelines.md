@@ -1,97 +1,63 @@
-Pull Request Guidelines
-=======================
+### 拉取请求指南概述
+模组是基于 Forge 构建的，但 Forge 存在一些不支持的功能，这限制了模组的开发。当模组开发者遇到此类情况时，可以对 Forge 进行修改以支持这些功能，并在 GitHub 上以拉取请求（Pull Request）的形式提交更改。
 
-Mods are built on top of Forge, but there are some things that Forge does not support, and that limits what mods can do.  
-When modders run into something like that, they can make a change to Forge to support it, and submit that change as a Pull Request on Github.
+为了充分利用你和 Forge 团队的时间，在准备拉取请求时，建议遵循一些基本准则。以下几点是编写优秀拉取请求时需要牢记的最重要方面。
 
-To make the best use of both your and the Forge team's time, it is recommended to follow some rough guidelines when preparing a Pull Request. The following points are the most important aspects to keep in mind when it comes to writing a good Pull Request.
+### Forge 是什么
+从宏观层面看，Forge 是 Minecraft 之上的一个模组兼容性层。早期的模组会直接编辑 Minecraft 的代码（就像现在的核心模组一样），但当它们编辑相同内容时会产生冲突。此外，当一个模组以其他模组无法预见的方式改变行为时（同样类似现在的核心模组），也会引发问题，导致神秘的故障和大量的困扰。
 
-What Exactly is Forge?
-----------------------
+通过使用 Forge 这样的工具，模组可以集中进行常见的更改，从而避免冲突。Forge 还包含了对常见模组特性（如能力系统、注册表等）的支持结构，使模组之间能够更好地协同工作。
 
-At a high level, Forge is a mod compatibility layer on top of Minecraft.   
-Early mods edited Minecraft's code directly (like coremods do now), but they ran into conflicts with each other when they edited the same things. They also ran into issues when one mod changed behavior in ways that the other mods could not anticipate (like coremods do now), causing mysterious issues and lots of headaches.  
+在编写优秀的 Forge 拉取请求时，还需要了解 Forge 在底层的构成。Forge 的代码主要分为两种类型：Minecraft 补丁和 Forge 代码。
 
-By using something like Forge, mods can centralize common changes and avoid conflicts.  
-Forge also includes supporting structures for common mod features like Capabilities, Registries, and others that allow mods to work together better.
+#### 补丁
+补丁是对 Minecraft 源代码的直接更改，并且力求尽可能简洁。每次 Minecraft 代码更新时，都需要仔细检查并正确应用所有的 Forge 补丁到新代码上。这意味着更改大量内容的大补丁难以维护，因此 Forge 会尽量避免使用大补丁，而保持补丁尽可能小。
 
-When writing a good Forge Pull Request, you also have to know what Forge is at a lower level.   
-There are two main types of code in Forge: Minecraft patches, and Forge code.
+除了确保代码逻辑合理外，对补丁的审查还会侧重于减小其大小。有许多策略可以制作小补丁，审查时通常会指出更好的实现方法。Forge 补丁通常会插入一行代码来触发一个事件或代码钩子，如果事件满足某些条件，就会影响后续的代码。这样可以使大部分代码存在于补丁之外，从而保持补丁的简洁性。
 
-Patches
--------
+有关创建补丁的详细信息，请 [查看 GitHub 维基][patches]。
 
-Patches are applied as direct changes to Minecraft's source code, and aim to be as minimal as possible.  
-Every time Minecraft code changes, all the Forge patches need to be looked over carefully and applied correctly to the new code.  
-This means that large patches that change lots of things are difficult to maintain, so Forge aims to avoid those and keep patches as small as possible.  
-In addition to making sure the code makes sense, reviews for patches will focus on minimizing the size.
+#### Forge 代码
+除了补丁之外，Forge 代码就是普通的 Java 代码。它可以是事件代码、兼容性特性或其他不直接编辑 Minecraft 代码的内容。
 
-There are many strategies to make small patches, and reviews will often point out better methods to do things.  
-Forge patches often insert a single line that fires an event or a code hook, which affects the code after it if the event meets some condition.  
-This allows most of the code to exist outside of the patch, which keeps the patch small and simple.
+当 Minecraft 更新时，Forge 代码也需要像其他代码一样进行更新。不过，由于它不直接与 Minecraft 代码纠缠在一起，更新起来要容易得多。
 
-For more detailed information about creating patches, [see the GitHub wiki][patches].
+由于这部分代码是独立的，所以不像补丁那样有大小限制。
 
-Forge Code
-----------
+除了确保代码逻辑合理外，对这部分代码的审查会侧重于使其保持整洁，包括正确的格式和 Java 文档。
 
-Aside from the patches, Forge code is just normal Java code. It can be event code, compatibility features, or anything else that is not directly editing Minecraft code.
-When Minecraft updates, Forge code has to update just like everything else. However, it is much easier because it is not directly entangled in the Minecraft code.
+### 说明更改原因
+所有的拉取请求都需要回答一个问题：为什么这个更改是必要的？添加到 Forge 中的任何代码都需要进行维护，代码越多，潜在的 bug 就越多，因此添加代码需要有充分的理由。
 
-Because this code stands on its own, there is no size restriction like there is with the patches.
+常见的拉取请求问题是不提供任何解释，或者只是给出一些模糊的示例来说明拉取请求可能的用途。这只会延迟拉取请求的处理过程。给出一个通用情况的清晰解释是很好的，但同时也要给出一个具体的例子，说明你的模组为什么需要这个拉取请求。
 
-In addition to making sure the code makes sense, reviews will focus on making the code clean: with proper formatting and Java documentation.
+有时候，可能有更好的方法来实现你想要的功能，或者根本不需要通过拉取请求就能实现。在排除这些可能性之前，代码更改不会被接受。
 
-Explain Yourself
-----------------
+### 证明代码可行
+你提交给 Forge 的代码应该能够完美运行，并且你有责任让审查人员相信这一点。
 
-All Pull Requests need to answer the question: why is this necessary?  
-Any code added to Forge needs to be maintained, and more code means more potential for bugs, so solid justification is needed for adding code.
+最好的方法之一是在 Forge 中添加一个示例模组或 JUnit 测试，使用你的新代码并展示其运行情况。
 
-A common Pull Request issue is offering no explanation, or giving cryptic examples for how the Pull Request might theoretically be used.
-This only delays the Pull Request process.  
-A clear explanation for the general case is good, but also give a concrete example of how your mod needs this Pull Request.
+要设置并运行包含示例模组的 Forge 环境，请参阅 [此指南][forgeenv]。
 
-Sometimes there is better way to do what you wanted, or a way to do it without a Pull Request at all. Code changes can not be accepted until those possibilities have been completely ruled out.
+### Forge 中的重大更改
+Forge 不能进行会破坏依赖它的模组的更改。这意味着拉取请求必须确保不会破坏与以前 Forge 版本的二进制兼容性。破坏二进制兼容性的更改被称为重大更改。
 
-Show that it Works
-------------------
+有一些例外情况：
+- 在新的 Minecraft 版本开始时，Forge 会接受重大更改，因为此时 Minecraft 本身已经会给模组开发者带来重大更改。
+- 有时在非上述时间窗口内需要进行紧急的重大更改，但这种情况很少见，并且会给整个模组化 Minecraft 社区带来依赖方面的困扰。
 
-The code you submit to Forge should work perfectly, and it is up to you to convince the reviewers that it does.  
+在这些特殊时间之外，包含重大更改的拉取请求将不被接受。这些更改必须进行调整以支持旧的行为，或者等待下一个 Minecraft 版本。
 
-One of the best ways to do that is to add an example mod or JUnit test to Forge that makes use of your new code and shows it working.  
+### 保持耐心、礼貌和同理心
+提交拉取请求时，通常需要经过代码审查并进行多次更改，才能使拉取请求达到最佳状态。要记住，代码审查并不是对你个人的评判。代码中的 bug 并不针对个人，没有人是完美的，这就是我们共同协作的原因。
 
-To set up and run a Forge Environment with the example mods, see [this guide][forgeenv].
+消极态度无济于事。威胁放弃拉取请求并转而编写核心模组只会让大家感到不满，并使模组化生态系统变得更糟。在协作过程中，重要的是要假定审查你拉取请求的人怀有善意，不要将事情个人化。
 
-Breaking Changes in Forge
--------------------------
+### 最终审查
+如果你尽力理解拉取请求过程的缓慢和追求完美的特性，我们也会尽力理解你的观点。
 
-Forge cannot make changes that break the mods that depend on it.  
-This means that Pull Requests have to ensure that they do not break binary compatibility with previous Forge versions.  
-A change that breaks binary compatibility is called a Breaking Change.
-
-There are some exceptions to this:
-
-* Forge accepts Breaking Changes at the beginning of new Minecraft versions, where Minecraft itself already causes Breaking Changes for modders.  
-* Sometimes an emergency breaking change is required outside of that time window, but it is rare and can cause dependency headaches for everyone in the modded Minecraft community.
-
-Outside of those exceptional times, Pull Requests with breaking changes are not accepted. They must be adapted to support the old behavior or wait for the next Minecraft version.
-
-Be Patient, Civil, and Empathetic
---------------------------------
-
-When submitting Pull Requests, you will often have to survive code review and make several changes before it is the best Pull Request possible.  
-Keep in mind that code review is not judgement against you. Bugs in your code are not personal. Nobody is perfect, and that is why we are working together. 
-
-Negativity will not help. Threatening to give up on your Pull Request and write a coremod instead will just make people upset and make the modded ecosystem worse.  
-It is important that while working together you assume the best intentions of the people who are reviewing your Pull Request and not take things personally.
-
-Review
-------
-
-If you do your best to understand the slow and perfectionistic nature of the Pull Request process, we will do our best to understand your point of view as well.
-
-After your Pull Request has been reviewed and cleaned up to the best of everyone's ability, it will be marked for a final review by Lex, who has the final say on what is included in the project or not.
+在你的拉取请求经过审查并尽可能完善后，将由 Lex 进行最终审查，他对项目中是否包含某些内容有最终决定权。
 
 [patches]: https://github.com/MinecraftForge/MinecraftForge/wiki/If-you-want-to-contribute-to-Forge#conventions-for-coding-patches-for-a-minecraft-class-javapatch
 [forgeenv]: ./index.md
