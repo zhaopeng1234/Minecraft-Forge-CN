@@ -1,110 +1,89 @@
-Access Transformers
-===================
+### 访问转换器概述
+访问转换器（Access Transformers，简称 ATs）允许扩大类、方法和字段的可见性，并修改其 `final` 标志。这使得模组开发者能够访问和修改那些原本无法访问的类成员。
 
-Access Transformers (ATs for short) allow for widening the visibility and modifying the `final` flags of classes, methods, and fields. They allow modders to access and modify otherwise inaccessible members in classes outside their control.
-
-The [specification document][specs] can be viewed on the Minecraft Forge GitHub.
-
-Adding ATs
-----------
-
-Adding an Access Transformer to your mod project is as simple as adding a single line into your `build.gradle`:
-
+### 添加访问转换器
+将访问转换器添加到你的模组项目中非常简单，只需在 `build.gradle` 文件中添加一行代码：
 ```groovy
-// This block is where your mappings version is also specified
+// 此代码块也是指定映射版本的地方
 minecraft {
   accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 }
 ```
+添加或修改访问转换器后，需要刷新 Gradle 项目，转换才能生效。
 
-After adding or modifying the Access Transformer, the gradle project must be refreshed for the transformations to take effect.
+在开发过程中，AT 文件可以位于上述代码指定的任何位置。但在非开发环境中加载时，Forge 只会在 JAR 文件的 `META-INF/accesstransformer.cfg` 路径下搜索该文件。
 
-During development, the AT file can be anywhere specified by the line above. However, when loading in a non-development environment, Forge will only search for the exact path of `META-INF/accesstransformer.cfg` in your JAR file.
+### 注释
+从 `#` 到行尾的所有文本都将被视为注释，不会被解析。
 
-Comments
---------
+### 访问修饰符
+访问修饰符指定了给定目标将被转换为的新成员可见性。按可见性从高到低的顺序排列如下：
+- `public`：对其包内外的所有类可见。
+- `protected`：仅对包内的类和子类可见。
+- `default`：仅对包内的类可见。
+- `private`：仅对类内部可见。
 
-All text after a `#` until the end of the line will be treated as a comment and will not be parsed.
+可以在上述修饰符后附加特殊修饰符 `+f` 或 `-f`，分别用于添加或移除 `final` 修饰符。`final` 修饰符用于防止子类化、方法重写或字段修改。
 
-Access Modifiers
-----------------
+!!! 警告
+    指令仅修改它们直接引用的方法；任何重写的方法不会被进行访问转换。建议确保被转换的方法没有限制可见性的未转换重写方法，否则 JVM 会抛出错误。
 
-Access modifiers specify to what new member visibility the given target will be transformed to. In decreasing order of visibility:
+    可以安全转换的方法示例包括 `private` 方法、`final` 方法（或 `final` 类中的方法）和 `static` 方法。
 
-* `public` - visible to all classes inside and outside its package
-* `protected` - visible only to classes inside the package and subclasses
-* `default` - visible only to classes inside the package
-* `private` - visible only to inside the class
+### 目标和指令
+!!! 重要
+    对 Minecraft 类使用访问转换器时，字段和方法必须使用 SRG 名称。
 
-A special modifier `+f` and `-f` can be appended to the aforementioned modifiers to either add or remove respectively the `final` modifier, which prevents subclassing, method overriding, or field modification when applied.
-
-!!! warning
-    Directives only modify the method they directly reference; any overriding methods will not be access-transformed. It is advised to ensure transformed methods do not have non-transformed overrides that restrict the visibility, which will result in the JVM throwing an error.
-    
-    Examples of methods that can be safely transformed are `private` methods, `final` methods (or methods in `final` classes), and `static` methods.
-
-Targets and Directives
-----------------------
-
-!!! important
-    When using Access Transformers on Minecraft classes, the SRG name must be used for fields and methods.
-
-### Classes
-To target classes:
+#### 类
+要针对类，可以使用以下格式：
 ```
-<access modifier> <fully qualified class name>
+<访问修饰符> <完全限定类名>
 ```
-Inner classes are denoted by combining the fully qualified name of the outer class and the name of the inner class with a `$` as separator.
+内部类通过使用 `$` 作为分隔符，将外部类的完全限定名和内部类的名称组合起来表示。
 
-### Fields
-To target fields:
+#### 字段
+要针对字段，可以使用以下格式：
 ```
-<access modifier> <fully qualified class name> <field name>
+<访问修饰符> <完全限定类名> <字段名>
 ```
 
-### Methods
-Targeting methods require a special syntax to denote the method parameters and return type:
+#### 方法
+针对方法需要使用特殊的语法来表示方法参数和返回类型：
 ```
-<access modifier> <fully qualified class name> <method name>(<parameter types>)<return type>
+<访问修饰符> <完全限定类名> <方法名>(<参数类型>)<返回类型>
 ```
 
-#### Specifying Types
+##### 指定类型
+这也被称为“描述符”，更多技术细节可参考 [Java 虚拟机规范，SE 8，第 4.3.2 和 4.3.3 节][jvmdescriptors]。
+- `B`：`byte`，有符号字节。
+- `C`：`char`，UTF - 16 编码的 Unicode 字符代码点。
+- `D`：`double`，双精度浮点数。
+- `F`：`float`，单精度浮点数。
+- `I`：`integer`，32 位整数。
+- `J`：`long`，64 位整数。
+- `S`：`short`，有符号短整数。
+- `Z`：`boolean`，`true` 或 `false` 值。
+- `[`：表示数组的一个维度。
+  - 示例：`[[S` 表示 `short[][]`。
+- `L<类名>;`：表示引用类型。
+  - 示例：`Ljava/lang/String;` 表示 `java.lang.String` 引用类型（注意使用斜杠而不是句点）。
+- `(`：表示方法描述符，这里应提供参数，如果没有参数则留空。
+  - 示例：`<方法>(I)Z` 表示一个需要整数参数并返回布尔值的方法。
+- `V`：表示方法不返回值，只能用在方法描述符的末尾。
+  - 示例：`<方法>()V` 表示一个没有参数且不返回任何值的方法。
 
-Also called "descriptors": see the [Java Virtual Machine Specification, SE 8, sections 4.3.2 and 4.3.3][jvmdescriptors] for more technical details.
-
-* `B` - `byte`, a signed byte
-* `C` - `char`, a Unicode character code point in UTF-16
-* `D` - `double`, a double-precision floating-point value
-* `F` - `float`, a single-precision floating-point value
-* `I` - `integer`, a 32-bit integer
-* `J` - `long`, a 64-bit integer
-* `S` - `short`, a signed short
-* `Z` - `boolean`, a `true` or `false` value
-* `[` - references one dimension of an array
-  * Example: `[[S` refers to `short[][]`
-* `L<class name>;` - references a reference type
-  * Example: `Ljava/lang/String;` refers to `java.lang.String` reference type _(note the use of slashes instead of periods)_
-* `(` - references a method descriptor, parameters should be supplied here or nothing if no parameters are present
- * Example: `<method>(I)Z` refers to a method that requires an integer argument and returns a boolean
-* `V` - indicates a method returns no value, can only be used at the end of a method descriptor
-  * Example: `<method>()V` refers to a method that has no arguments and returns nothing
-
-Examples
---------
-
+### 示例
 ```
-# Makes public the ByteArrayToKeyFunction interface in Crypt
+# 使 Crypt 类中的 ByteArrayToKeyFunction 接口变为 public
 public net.minecraft.util.Crypt$ByteArrayToKeyFunction
 
-# Makes protected and removes the final modifier from 'random' in MinecraftServer
+# 使 MinecraftServer 类中的 'random' 字段变为 protected 并移除 final 修饰符
 protected-f net.minecraft.server.MinecraftServer f_129758_ #random
 
-# Makes public the 'makeExecutor' method in Util,
-# accepting a String and returns an ExecutorService
+# 使 Util 类中的 'makeExecutor' 方法变为 public，该方法接受一个 String 类型的参数并返回一个 ExecutorService
 public net.minecraft.Util m_137477_(Ljava/lang/String;)Ljava/util/concurrent/ExecutorService; #makeExecutor
 
-# Makes public the 'leastMostToIntArray' method in UUIDUtil,
-# accepting two longs and returning an int[]
+# 使 UUIDUtil 类中的 'leastMostToIntArray' 方法变为 public，该方法接受两个 long 类型的参数并返回一个 int[]
 public net.minecraft.core.UUIDUtil m_235872_(JJ)[I #leastMostToIntArray
 ```
 
