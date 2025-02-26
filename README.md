@@ -10,8 +10,8 @@
 # 目录
 
 * ### 从零开始:
-    - [Forge 入门](/docs/gettingstarted/index.md)
-    - [Mod文件](/docs/gettingstarted/modfiles.md)
+    - [Forge 入门*](/docs/gettingstarted/index.md)
+    - [Mod文件*](/docs/gettingstarted/modfiles.md)
     - [结构化你的mod](/docs/gettingstarted/structuring.md)
     - [版本控制](/docs/gettingstarted/versioning.md)
 * ### 核心概念:
